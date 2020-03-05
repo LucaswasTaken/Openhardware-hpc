@@ -1,0 +1,5 @@
+#Instalacao
+pip3 install mpi4py
+
+#Execucao
+mpiexec -n 4 --hostfile hostfile python3 broadcast_example.py
