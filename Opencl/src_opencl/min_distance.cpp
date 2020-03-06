@@ -42,17 +42,12 @@ int main(int argc, char** argv){
 	int gpu = cmdl.gpu;
 	cl_int ret = clGetPlatformIDs(2, &platform_ids[0], &ret_num_platforms);
 
-	if (cmdl.first_platform) {
-		platform_id = platform_ids[0];
-	}else {
-		platform_id = platform_ids[1];
-	}
+	platform_id = platform_ids[0];
+	
 	int err;
-	if (gpu) {
-		err = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &device_id, NULL);
-	}else {
-		err = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
-	}
+	
+	err = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &device_id, NULL);
+	
     error_check(err,CL_SUCCESS,"Error: Failed to create a device group!");
 
 	//Nome do dispositivo
@@ -72,7 +67,7 @@ int main(int argc, char** argv){
 	error_check_null(commands,"Error: Failed to create a command queue!");
 
 	// Cria programa para dado codigo fonte
-	std::string code = read_file("./cl/min_distance.cl");
+	std::string code = read_file("./min_distance.cl");
 	const char * kernel_source = code.c_str();
 	if(cmdl.show_source){std::cout << code << std::endl;}
 
