@@ -9,7 +9,7 @@ ctx = cl.create_some_context()
 queue = cl.CommandQueue(ctx)
 
 mf = cl.mem_flags
-f = open("/content/Openhardware-hpc/Opencl/src_opencl/pi.cl","r")
+f = open("/content/Openhardware-hpc/pyopencl/pi.cl","r")
 string = f.read()
 f.close()
 prg = cl.Program(ctx, string).build()
@@ -21,7 +21,7 @@ res_vec_cl = cl.Buffer(ctx, mf.WRITE_ONLY, res_vec.nbytes)
 
 prg.pi_cl(queue, res_vec.shape, None, res_vec_cl, np.float32(dx))
 
-res_np = np.empty_like(res_vec).astype(np.float32)
-cl.enqueue_copy(queue, res_np, res_vec_cl)
-print(sum(res_np))
+# res_np = np.empty_like(res_vec).astype(np.float32)
+cl.enqueue_copy(queue, res_vec, res_vec_cl)
+print(sum(res_vec))
 
