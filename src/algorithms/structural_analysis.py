@@ -69,9 +69,9 @@ def structural_analysis_vectorized(loads_array, beam_length, E, I):
     # NumPy não consegue vetorizar completamente algoritmos iterativos complexos
     deflections_linear = (loads_array * beam_length**3) / (3 * E * I)
     
-    # Aproximação da correção não-linear (apenas 10 iterações vs 50 do serial)
+    # Aproximação da correção não-linear (apenas 50 iterações vs 50 do serial)
     deflections = deflections_linear.copy()
-    for iteration in range(10):
+    for iteration in range(50):
         correction = 0.01 * (deflections/beam_length)**2
         deflections = deflections_linear * (1 + correction)
     
