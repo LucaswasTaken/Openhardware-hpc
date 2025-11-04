@@ -1,359 +1,226 @@
 # Lista de Exercícios - Computação de Alto Desempenho em Python
+## Escolha UM Exercício e uma Tecnologia
 
 ## 📝 Instruções Gerais
 
-Estes exercícios são projetados para reforçar os conceitos de paralelismo apresentados nas aulas. Cada exercício explora aspectos práticos do HPC aplicados à engenharia civil.
+Você deve **escolher apenas UM exercício** desta lista e **uma tecnologia** para implementar a solução. Após a implementação, gere um **relatório técnico** (1-2 páginas) com explicações detalhadas e análise completa de performance.
 
-**Diretrizes:**
-- Implemente soluções tanto seriais quanto paralelas
-- Meça e compare os tempos de execução
-- Calcule speedup e eficiência quando aplicável
-- Documente seu código com comentários claros
-- Teste com diferentes tamanhos de problema
+### 🚀 Tecnologias Disponíveis:
+- **Joblib**: Paralelização em CPU (múltiplos cores)
+- **Numba**: Compilação JIT para performance (código serial otimizado)  
+- **CuPy**: Computação em GPU (aceleração massiva)
+- **Multiprocessing**: Paralelização tradicional Python
+- **Dask**: Computação paralela distribuída
+- **Ou qualquer outra tecnologia de HPC que desejar explorar**
 
----
-
-# 🧩 Exercícios da Aula 1 - Paralelismo em CPU
-
-## Exercício 1.1: Produto Escalar Paralelo
-**Dificuldade:** ⭐⭐☆☆☆
-
-Implemente o cálculo do produto escalar (dot product) de dois vetores usando multiprocessing.
-
-```python
-# Fórmula: dot_product = Σ(a[i] * b[i])
-```
-
-**Tarefas:**
-1. Implemente versão serial
-2. Implemente versão paralela dividindo os vetores em chunks
-3. Compare com `np.dot()`
-4. Teste com vetores de tamanhos: 1M, 10M, 100M elementos
-
-**Aplicação:** Cálculo de forças internas em estruturas (F = K·u).
+### 📋 Estrutura do Relatório:
+1. **Problema Escolhido** (2-3 linhas)
+2. **Tecnologia Selecionada e Justificativa** (3-4 linhas)
+3. **Implementação**: Descrição detalhada da abordagem (4-5 linhas)
+4. **Métricas de Performance Obrigatórias**: 
+   - Tempo de execução (serial vs paralelo)
+   - **Speedup** = T_serial / T_paralelo
+   - **Eficiência** = Speedup / N_processos
+   - **Escalabilidade** = análise com diferentes números de cores/processos
+   - Uso de memória e recursos
+5. **Análise dos Resultados** (4-5 linhas)
+6. **Gráficos de Escalabilidade** (speedup vs cores, eficiência vs cores)
+7. **Conclusões e Limitações** (3-4 linhas)
 
 ---
 
-## Exercício 1.2: Análise de Vigas Paralela
-**Dificuldade:** ⭐⭐⭐☆☆
+# 🎯 Escolha UM dos 5 Exercícios Abaixo
+**Nível de Dificuldade:** ⭐⭐☆☆☆ (Básico-Intermediário)
 
-Simule a análise de múltiplas vigas com diferentes carregamentos em paralelo.
+# 🔢 Exercício 1: Produto Vetorial (Dot Product)
+**Aplicação:** Cálculo de forças e energias em sistemas físicos
 
-**Especificações:**
-- Viga simplesmente apoiada, comprimento L
-- Carga concentrada P no centro
-- Calcular: deflexão máxima, momento máximo, tensão máxima
-- Simular 10.000 vigas com parâmetros aleatórios
+### Especificações:
+- Implementar produto escalar de dois vetores: result = Σ(a[i] * b[i])
+- Tamanhos de vetores: 1 milhão, 10 milhões, 100 milhões de elementos
+- Comparar com implementação numpy (np.dot)
+- Testar escalabilidade com 1, 2, 4, 8 cores/processos
 
-**Fórmulas:**
-```
-δ_max = P*L³/(48*E*I)    # Deflexão máxima
-M_max = P*L/4            # Momento máximo  
-σ_max = M*c/I            # Tensão máxima
-```
+### Requisitos Técnicos:
+- Implementar versão serial simples (loop básico)
+- Dividir vetor em chunks para paralelização
+- Medir tempo total e tempo por elemento
+- Validar resultado comparando com numpy
 
-**Tarefas:**
-1. Implemente função para análise de uma viga
-2. Paralelizar usando `ProcessPoolExecutor`
-3. Gerar estatísticas: média, desvio padrão, histogramas
-4. Comparar tempo serial vs paralelo
-
-**Aplicação:** Análise paramétrica para dimensionamento estrutural.
+### Análise Obrigatória:
+- Strong scaling: vetor fixo, variar processos
+- Identificar overhead de paralelização
+- Comparar eficiência vs numpy otimizado
 
 ---
 
-## Exercício 1.3: Monte Carlo para Área de Seção
-**Dificuldade:** ⭐⭐⭐☆☆
+# 🧮 Exercício 2: Multiplicação de Matrizes Densas
+**Aplicação:** Operações básicas em álgebra linear computacional
 
-Use Monte Carlo para calcular a área de uma seção transversal complexa (ex: seção T).
+### Especificações:
+- Implementar multiplicação C = A × B (matrizes densas quadradas)
+- Tamanhos: 500×500, 1000×1000, 1500×1500
+- Algoritmo triplo loop básico: C[i][j] = Σ A[i][k] * B[k][j]
+- Testar diferentes estratégias de paralelização
 
-**Especificações:**
-- Seção T: mesa 20cm × 5cm, alma 5cm × 15cm
-- Usar pontos aleatórios em retângulo envolvente
-- Contar pontos dentro da seção
+### Requisitos Técnicos:
+- Versão serial com loops aninhados
+- Paralelizar por linhas, colunas ou blocos
+- Medir FLOPS (operações de ponto flutuante por segundo)
+- Comparar com numpy.matmul()
 
-**Tarefas:**
-1. Implementar teste de ponto dentro da seção T
-2. Versão serial do Monte Carlo
-3. Versão paralela com múltiplos processos
-4. Calcular área, centroide e momento de inércia
-5. Estudar convergência com número de amostras
-
-**Aplicação:** Cálculo de propriedades geométricas de seções complexas.
-
----
-
-## Exercício 1.4: Solução de Sistema Linear Paralelo
-**Dificuldade:** ⭐⭐⭐⭐☆
-
-Implemente eliminação de Gauss paralela para sistemas lineares.
-
-**Especificações:**
-- Sistema Ax = b, onde A é matriz n×n
-- Paralelizar operações de linha da eliminação
-- Implementar substituição regressiva
-
-**Tarefas:**
-1. Implementar eliminação de Gauss serial
-2. Paralelizar usando divisão por linhas
-3. Comparar com `np.linalg.solve()`
-4. Testar estabilidade numérica
-5. Medir speedup para diferentes tamanhos de matriz
-
-**Aplicação:** Solução de sistemas de equações estruturais (Ku = f).
+### Análise Obrigatória:
+- Escalabilidade vs tamanho da matriz
+- Eficiência de diferentes estratégias de divisão
+- Análise de uso de cache e memória
 
 ---
 
-# ⚙️ Exercícios da Aula 2 - Paralelismo Avançado
+# � Exercício 3: Simulação Monte Carlo para π (joblib ou cupy)
+**Aplicação:** Métodos probabilísticos e integração numérica
 
-## Exercício 2.1: Interpolação Paralela com Joblib
-**Dificuldade:** ⭐⭐☆☆☆
+### Especificações:
+- Calcular π usando pontos aleatórios em círculo unitário
+- π ≈ 4 × (pontos dentro do círculo / total de pontos)
+- Números de pontos: 1M, 10M, 100M, 1B
+- Medir convergência e erro relativo
 
-Implemente interpolação de dados experimentais usando múltiplos métodos em paralelo.
+### Requisitos Técnicos:
+- Gerar pontos (x,y) aleatórios no quadrado [-1,1]×[-1,1]
+- Testar se x² + y² ≤ 1 (dentro do círculo)
+- Paralelizar geração e contagem de pontos
+- Calcular estatísticas de convergência
 
-**Especificações:**
-- Dados de teste de materiais (tensão × deformação)
-- Métodos: linear, spline cúbica, polinomial
-- Avaliar em 1000 pontos de consulta
-
-**Tarefas:**
-1. Gerar dados sintéticos de teste de tração
-2. Implementar cada método de interpolação
-3. Usar `joblib` para paralelizar diferentes métodos
-4. Comparar precisão e tempo de execução
-5. Visualizar resultados
-
-**Aplicação:** Processamento de dados experimentais de materiais.
-
----
-
-## Exercício 2.2: Otimização Paramétrica com Futures
-**Dificuldade:** ⭐⭐⭐☆☆
-
-Otimize as dimensões de uma viga para minimizar peso sujeito a restrições.
-
-**Especificações:**
-- Viga retangular: altura h, base b
-- Restrições: tensão ≤ 250 MPa, deflexão ≤ L/250
-- Objetivo: minimizar peso (área da seção)
-
-**Tarefas:**
-1. Implementar função objetivo e restrições
-2. Usar busca em grade paralela com `concurrent.futures`
-3. Encontrar solução ótima
-4. Plotar superfície de resposta
-5. Comparar com algoritmos de otimização clássicos
-
-**Aplicação:** Dimensionamento ótimo de elementos estruturais.
+### Análise Obrigatória:
+- Weak scaling: pontos por processo constante
+- Erro vs número de amostras (lei dos grandes números)
+- Qualidade dos geradores de números aleatórios
 
 ---
 
-## Exercício 2.3: Análise Modal com Numba
-**Dificuldade:** ⭐⭐⭐⭐☆
+# 📊 Exercício 4: Soma de Elementos de Array (cupy obrigatorio)
+**Aplicação:** Operação de redução fundamental em computação paralela
 
-Calcule frequências naturais de uma viga usando método de diferenças finitas.
+### Especificações:
+- Calcular soma de todos elementos de um array grande
+- Tamanhos: 10M, 50M, 100M, 500M elementos
+- Implementar diferentes estratégias de redução
+- Comparar com numpy.sum()
+- Verificar se em algum momente HAVERÁ GANHO EM PARALELIZAR EM GPU
 
-**Especificações:**
-- Viga engastada-livre discretizada em elementos
-- Problema de autovalores: (K - ω²M)φ = 0
-- Usar Numba para acelerar montagem de matrizes
+### Requisitos Técnicos:
+- Versão serial: loop simples
+- Redução paralela: árvore binária ou divisão em chunks
+- Evitar problemas de precisão numérica
+- Medir bandwidth de memória
 
-**Tarefas:**
-1. Implementar montagem de matriz de rigidez K
-2. Implementar montagem de matriz de massa M  
-3. Usar `@numba.jit` para acelerar loops
-4. Comparar primeiras 5 frequências com solução analítica
-5. Estudar convergência com refinamento da malha
-
-**Aplicação:** Análise dinâmica de estruturas.
-
----
-
-## Exercício 2.4: Scaling Study Completo
-**Dificuldade:** ⭐⭐⭐⭐☆
-
-Conduza estudo completo de escalabilidade para multiplicação matriz-vetor.
-
-**Especificações:**
-- Matrizes esparsas (padrão pentadiagonal)
-- Strong scaling: matriz fixa, variar processos
-- Weak scaling: elementos por processo fixo
-
-**Tarefas:**
-1. Implementar multiplicação matriz-vetor esparsa
-2. Medir strong scaling (1-16 processos)
-3. Medir weak scaling (mesmo workload por processo)
-4. Calcular eficiência e identificar gargalos
-5. Plotar curvas de escalabilidade
-6. Propor melhorias baseadas nos resultados
-
-**Aplicação:** Dimensionamento de clusters para problemas FEM.
+### Análise Obrigatória:
+- Escalabilidade limitada por memória vs CPU
+- Comparar redução em árvore vs chunks lineares
+- Análise de precisão numérica (float32 vs float64)
 
 ---
 
-# ⚡ Exercícios da Aula 3 - Computação GPU
+# 🔍 Exercício 5: Busca Linear em Array
+**Aplicação:** Busca paralela e processamento de dados
 
-## Exercício 3.1: Filtro de Imagens com CuPy
-**Dificuldade:** ⭐⭐⭐☆☆
+### Especificações:
+- Encontrar todas ocorrências de um valor em array grande
+- Tamanhos: 10M, 50M, 100M elementos
+- Retornar índices de todas as ocorrências encontradas
+- Testar com diferentes densidades de ocorrências (1%, 5%, 10%)
 
-Implemente filtros para processamento de imagens de inspeção estrutural.
+### Requisitos Técnicos:
+- Versão serial: loop com comparação simples
+- Paralelizar busca dividindo array em chunks
+- Combinar resultados de diferentes processos
+- Medir throughput (elementos processados por segundo)
 
-**Especificações:**
-- Filtros: Gaussiano, Sobel, Laplaciano
-- Imagens de fissuras em concreto (simular com ruído)
-- Comparar performance CPU vs GPU
-
-**Tarefas:**
-1. Gerar imagem sintética com "fissuras"
-2. Implementar filtros usando NumPy
-3. Portar para CuPy (mudança np → cp)
-4. Medir speedup para diferentes tamanhos de imagem
-5. Visualizar resultados da filtragem
-
-**Aplicação:** Detecção automática de fissuras em estruturas.
-
----
-
-## Exercício 3.2: FFT para Análise de Vibrações
-**Dificuldade:** ⭐⭐⭐☆☆
-
-Use FFT em GPU para analisar sinais de acelerômetros em estruturas.
-
-**Especificações:**
-- Sinal simulado: frequências estruturais + ruído
-- Calcular espectro de potência
-- Identificar picos (frequências naturais)
-
-**Tarefas:**
-1. Gerar sinal temporal com múltiplas frequências
-2. Implementar FFT usando NumPy e CuPy
-3. Calcular densidade espectral de potência
-4. Identificar picos automaticamente
-5. Comparar performance para sinais longos
-
-**Aplicação:** Monitoramento de saúde estrutural (SHM).
+### Análise Obrigatória:
+- Escalabilidade vs densidade de ocorrências
+- Overhead de comunicação para combinar resultados
+- Load balancing quando ocorrências são irregulares
 
 ---
 
-## Exercício 3.3: Solver Iterativo GPU
-**Dificuldade:** ⭐⭐⭐⭐☆
+# 🔍 Exercício 6: Ordenação
+**Aplicação:** Qualquer algoritmo de ordenação com qualquer método de HPC
 
-Implemente método de Jacobi para solução de sistemas lineares em GPU.
+### Especificações:
+- Sem especificações
 
-**Especificações:**
-- Sistema Ax = b com matriz esparsa
-- Método iterativo de Jacobi
-- Critério de convergência: ||r|| < tol
+### Requisitos Técnicos:
+- Versão serial: loop com comparação simples
+- Paralelizar busca dividindo array em chunks
+- Combinar resultados de diferentes processos
+- Medir throughput (elementos processados por segundo)
 
-**Tarefas:**
-1. Implementar Jacobi usando CuPy
-2. Comparar com versão CPU (NumPy)
-3. Estudar convergência para diferentes matrizes
-4. Otimizar usando memory patterns eficientes
-5. Implementar pré-condicionamento diagonal
-
-**Aplicação:** Solução de grandes sistemas FEM em GPU.
+### Análise Obrigatória:
+- Escalabilidade vs densidade de ocorrências
+- Overhead de comunicação para combinar resultados
+- Load balancing quando ocorrências são irregulares
 
 ---
 
-## Exercício 3.4: Simulação de Onda 2D com Numba CUDA
-**Dificuldade:** ⭐⭐⭐⭐⭐
+# 🔍 Exercício 7: Algoritmo ponto dentor de polígono
+**Aplicação:** Algoritmo do Tiro com qualquer método de HPC
 
-Simule propagação de ondas sísmicas em meio 2D usando kernels CUDA.
+### Especificações:
+- Sem especificações
 
-**Especificações:**
-- Equação da onda: ∂²u/∂t² = c²∇²u
-- Diferenças finitas no tempo e espaço
-- Fonte pontual de excitação
+### Requisitos Técnicos:
+- Versão serial: loop com comparação simples
+- Paralelizar busca dividindo array em chunks
+- Combinar resultados de diferentes processos
+- Medir throughput (elementos processados por segundo)
 
-**Tarefas:**
-1. Implementar kernel CUDA para um passo temporal
-2. Implementar condições de contorno absorventes
-3. Visualizar propagação da onda (animação)
-4. Comparar com versão CPU
-5. Medir throughput (pontos de malha por segundo)
-
-**Aplicação:** Simulação de propagação de ondas sísmicas.
+### Análise Obrigatória:
+- Escalabilidade vs densidade de ocorrências
+- Overhead de comunicação para combinar resultados
+- Load balancing quando ocorrências são irregulares
 
 ---
 
-# 🎯 Projetos Integradores
+# 🔍 Exercício 8: Fecho Convexo
+**Aplicação:** Algoritmo de fecho convexo com qualquer método de HPC
 
-## Projeto Final A: Simulador FEM Paralelo
-**Dificuldade:** ⭐⭐⭐⭐⭐
+### Especificações:
+- Sem especificações
 
-Desenvolva um simulador de elementos finitos paralelo para treliças 2D.
+### Requisitos Técnicos:
+- Versão serial: loop com comparação simples
+- Paralelizar busca dividindo array em chunks
+- Combinar resultados de diferentes processos
+- Medir throughput (elementos processados por segundo)
 
-**Especificações:**
-- Elementos de barra (2 nós, 4 graus de liberdade)
-- Montagem paralela da matriz global
-- Solução paralela do sistema
-- Pós-processamento das tensões
-
-**Entregáveis:**
-1. Código completo documentado
-2. Validação com casos analíticos
-3. Análise de performance e escalabilidade
-4. Relatório técnico (5-10 páginas)
+### Análise Obrigatória:
+- Escalabilidade vs densidade de ocorrências
+- Overhead de comunicação para combinar resultados
+- Load balancing quando ocorrências são irregulares
 
 ---
 
-## Projeto Final B: Plataforma de Análise Sísmica
-**Dificuldade:** ⭐⭐⭐⭐⭐
+# 🎨 Exercício Extra: Problema Proposto pelo Estudante
 
-Desenvolva plataforma para análise de registros sísmicos.
+### 💡 Oportunidade de Criar Seu Próprio Desafio
 
-**Especificações:**
-- Processamento de acelerogramas
-- Cálculo de espectros de resposta
-- Análise estatística de banco de dados
-- Interface de visualização
+Se você deseja explorar um problema específico de sua área de interesse ou tem uma aplicação particular em mente, pode **propor seu próprio exercício**!
 
-**Entregáveis:**
-1. Pipeline completo de processamento
-2. Comparação CPU vs GPU
-3. Análise de banco de dados sísmicos
-4. Dashboard de visualização
+### Requisitos para Proposta:
+1. **Problema Bem Definido**: Descrição clara do problema computacional
+2. **Relevância**: Aplicação prática em engenharia, ciências ou computação
+3. **Escalabilidade**: Problema deve ser paralelizável/otimizável
+4. **Complexidade Adequada**: Nem trivial nem excessivamente complexo
 
----
+### Exemplos de Problemas Válidos:
+- **Processamento de Imagens**: Filtros, segmentação, análise de features
+- **Simulação Física**: Dinâmica de fluidos, mecânica dos sólidos, ondas
+- **Análise de Dados**: Machine learning, estatística, big data
+- **Algoritmos Numéricos**: Solvers, otimização, álgebra linear
 
-# 📊 Critérios de Avaliação
-
-## Exercícios Individuais (70%)
-- **Correção (40%):** Implementação funciona corretamente
-- **Performance (20%):** Speedup e eficiência adequados  
-- **Código (10%):** Clareza, documentação, estrutura
-
-## Projeto Final (30%)
-- **Funcionalidade (15%):** Atende especificações
-- **Inovação (5%):** Soluções criativas e otimizações
-- **Relatório (10%):** Análise técnica e conclusões
-
-## Dicas para Sucesso
-1. **Comece simples:** Implemente versão serial primeiro
-2. **Meça sempre:** Profile antes de otimizar
-3. **Documente:** Comente código e resultados
-4. **Valide:** Compare com soluções conhecidas
-5. **Explore:** Teste diferentes parâmetros e configurações
+### 📧 Como Submeter a Proposta:
+Envie por email ou fórum da disciplina com assunto: **"Proposta de Exercício HPC - [Seu Nome]"**
 
 ---
 
-## 📚 Recursos Adicionais
-
-### Dados para Exercícios
-- Repositório contém datasets sintéticos
-- Scripts de geração de dados incluídos
-- Soluções analíticas para validação
-
-### Ferramentas Recomendadas
-- **Profiling:** `cProfile`, `line_profiler`
-- **Visualização:** `matplotlib`, `seaborn`
-- **Análise:** `pandas`, `scipy`
-- **GPU:** `cupy`, `numba`
-
-### Suporte
-- Issues no repositório GitHub
-- Discussões no fórum da disciplina
-- Horários de monitoria
-
-**Boa sorte e bom aprendizado em HPC! 🚀**
+**Boa sorte na exploração de HPC! 🚀**
