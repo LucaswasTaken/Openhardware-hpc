@@ -1,0 +1,247 @@
+
+      <html xmlns:o='urn:schemas-microsoft-com:office:office'
+            xmlns:w='urn:schemas-microsoft-com:office:word'
+            xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+          <meta charset="utf-8">
+          <title>Exported Document</title>
+          <style>
+              body { font-family: Arial, sans-serif; }
+          </style>
+      </head>
+      <body>
+          <h1 id="listadeexerccioscomputaodealtodesempenhoempython">Lista de Exercícios - Computação de Alto Desempenho em Python</h1>
+<h2 id="escolhaumexerccioeumatecnologia">Escolha UM Exercício e uma Tecnologia</h2>
+<h2 id="instruesgerais">📝 Instruções Gerais</h2>
+<p>Você deve <strong>escolher apenas UM exercício</strong> desta lista e <strong>uma tecnologia</strong> para implementar a solução. Após a implementação, gere um <strong>relatório técnico</strong> (1-2 páginas) com explicações detalhadas e análise completa de performance.</p>
+<h3 id="tecnologiasdisponveis">🚀 Tecnologias Disponíveis:</h3>
+<ul>
+<li><strong>Joblib</strong>: Paralelização em CPU (múltiplos cores)</li>
+<li><strong>Numba</strong>: Compilação JIT para performance (código serial otimizado)  </li>
+<li><strong>CuPy</strong>: Computação em GPU (aceleração massiva)</li>
+<li><strong>Multiprocessing</strong>: Paralelização tradicional Python</li>
+<li><strong>Dask</strong>: Computação paralela distribuída</li>
+<li><strong>Ou qualquer outra tecnologia de HPC que desejar explorar</strong></li>
+</ul>
+<h3 id="estruturadorelatrio">📋 Estrutura do Relatório:</h3>
+<ol>
+<li><strong>Problema Escolhido</strong> (2-3 linhas)</li>
+<li><strong>Tecnologia Selecionada e Justificativa</strong> (3-4 linhas)</li>
+<li><strong>Implementação</strong>: Descrição detalhada da abordagem (4-5 linhas)</li>
+<li><strong>Métricas de Performance Obrigatórias</strong>: </li>
+</ol>
+<ul>
+<li>Tempo de execução (serial vs paralelo)</li>
+<li><strong>Speedup</strong> = T_serial / T_paralelo</li>
+<li><strong>Eficiência</strong> = Speedup / N_processos</li>
+<li><strong>Escalabilidade</strong> = análise com diferentes números de cores/processos</li>
+<li>Uso de memória e recursos</li>
+</ul>
+<ol>
+<li><strong>Análise dos Resultados</strong> (4-5 linhas)</li>
+<li><strong>Gráficos de Escalabilidade</strong> (speedup vs cores, eficiência vs cores)</li>
+<li><strong>Conclusões e Limitações</strong> (3-4 linhas)</li>
+</ol>
+<hr />
+<h1 id="escolhaumdos5exercciosabaixo">🎯 Escolha UM dos 5 Exercícios Abaixo</h1>
+<p><strong>Nível de Dificuldade:</strong> ⭐⭐☆☆☆ (Básico-Intermediário)</p>
+<h1 id="exerccio1produtovetorialdotproduct">🔢 Exercício 1: Produto Vetorial (Dot Product)</h1>
+<p><strong>Aplicação:</strong> Cálculo de forças e energias em sistemas físicos</p>
+<h3 id="especificaes">Especificações:</h3>
+<ul>
+<li>Implementar produto escalar de dois vetores: result = Σ(a[i] * b[i])</li>
+<li>Tamanhos de vetores: 1 milhão, 10 milhões, 100 milhões de elementos</li>
+<li>Comparar com implementação numpy (np.dot)</li>
+<li>Testar escalabilidade com 1, 2, 4, 8 cores/processos</li>
+</ul>
+<h3 id="requisitostcnicos">Requisitos Técnicos:</h3>
+<ul>
+<li>Implementar versão serial simples (loop básico)</li>
+<li>Dividir vetor em chunks para paralelização</li>
+<li>Medir tempo total e tempo por elemento</li>
+<li>Validar resultado comparando com numpy</li>
+</ul>
+<h3 id="anliseobrigatria">Análise Obrigatória:</h3>
+<ul>
+<li>Strong scaling: vetor fixo, variar processos</li>
+<li>Identificar overhead de paralelização</li>
+<li>Comparar eficiência vs numpy otimizado</li>
+</ul>
+<hr />
+<h1 id="exerccio2multiplicaodematrizesdensas">🧮 Exercício 2: Multiplicação de Matrizes Densas</h1>
+<p><strong>Aplicação:</strong> Operações básicas em álgebra linear computacional</p>
+<h3 id="especificaes-1">Especificações:</h3>
+<ul>
+<li>Implementar multiplicação C = A × B (matrizes densas quadradas)</li>
+<li>Tamanhos: 500×500, 1000×1000, 1500×1500</li>
+<li>Algoritmo triplo loop básico: C[i][j] = Σ A[i][k] * B[k][j]</li>
+<li>Testar diferentes estratégias de paralelização</li>
+</ul>
+<h3 id="requisitostcnicos-1">Requisitos Técnicos:</h3>
+<ul>
+<li>Versão serial com loops aninhados</li>
+<li>Paralelizar por linhas, colunas ou blocos</li>
+<li>Medir FLOPS (operações de ponto flutuante por segundo)</li>
+<li>Comparar com numpy.matmul()</li>
+</ul>
+<h3 id="anliseobrigatria-1">Análise Obrigatória:</h3>
+<ul>
+<li>Escalabilidade vs tamanho da matriz</li>
+<li>Eficiência de diferentes estratégias de divisão</li>
+<li>Análise de uso de cache e memória</li>
+</ul>
+<hr />
+<h1 id="exerccio3simulaomontecarloparajobliboucupy">� Exercício 3: Simulação Monte Carlo para π (joblib ou cupy)</h1>
+<p><strong>Aplicação:</strong> Métodos probabilísticos e integração numérica</p>
+<h3 id="especificaes-2">Especificações:</h3>
+<ul>
+<li>Calcular π usando pontos aleatórios em círculo unitário</li>
+<li>π ≈ 4 × (pontos dentro do círculo / total de pontos)</li>
+<li>Números de pontos: 1M, 10M, 100M, 1B</li>
+<li>Medir convergência e erro relativo</li>
+</ul>
+<h3 id="requisitostcnicos-2">Requisitos Técnicos:</h3>
+<ul>
+<li>Gerar pontos (x,y) aleatórios no quadrado [-1,1]×[-1,1]</li>
+<li>Testar se x² + y² ≤ 1 (dentro do círculo)</li>
+<li>Paralelizar geração e contagem de pontos</li>
+<li>Calcular estatísticas de convergência</li>
+</ul>
+<h3 id="anliseobrigatria-2">Análise Obrigatória:</h3>
+<ul>
+<li>Weak scaling: pontos por processo constante</li>
+<li>Erro vs número de amostras (lei dos grandes números)</li>
+<li>Qualidade dos geradores de números aleatórios</li>
+</ul>
+<hr />
+<h1 id="exerccio4somadeelementosdearraycupyobrigatorio">📊 Exercício 4: Soma de Elementos de Array (cupy obrigatorio)</h1>
+<p><strong>Aplicação:</strong> Operação de redução fundamental em computação paralela</p>
+<h3 id="especificaes-3">Especificações:</h3>
+<ul>
+<li>Calcular soma de todos elementos de um array grande</li>
+<li>Tamanhos: 10M, 50M, 100M, 500M elementos</li>
+<li>Implementar diferentes estratégias de redução</li>
+<li>Comparar com numpy.sum()</li>
+<li>Verificar se em algum momente HAVERÁ GANHO EM PARALELIZAR EM GPU</li>
+</ul>
+<h3 id="requisitostcnicos-3">Requisitos Técnicos:</h3>
+<ul>
+<li>Versão serial: loop simples</li>
+<li>Redução paralela: árvore binária ou divisão em chunks</li>
+<li>Evitar problemas de precisão numérica</li>
+<li>Medir bandwidth de memória</li>
+</ul>
+<h3 id="anliseobrigatria-3">Análise Obrigatória:</h3>
+<ul>
+<li>Escalabilidade limitada por memória vs CPU</li>
+<li>Comparar redução em árvore vs chunks lineares</li>
+<li>Análise de precisão numérica (float32 vs float64)</li>
+</ul>
+<hr />
+<h1 id="exerccio5buscalinearemarray">🔍 Exercício 5: Busca Linear em Array</h1>
+<p><strong>Aplicação:</strong> Busca paralela e processamento de dados</p>
+<h3 id="especificaes-4">Especificações:</h3>
+<ul>
+<li>Encontrar todas ocorrências de um valor em array grande</li>
+<li>Tamanhos: 10M, 50M, 100M elementos</li>
+<li>Retornar índices de todas as ocorrências encontradas</li>
+<li>Testar com diferentes densidades de ocorrências (1%, 5%, 10%)</li>
+</ul>
+<h3 id="requisitostcnicos-4">Requisitos Técnicos:</h3>
+<ul>
+<li>Versão serial: loop com comparação simples</li>
+<li>Paralelizar busca dividindo array em chunks</li>
+<li>Combinar resultados de diferentes processos</li>
+<li>Medir throughput (elementos processados por segundo)</li>
+</ul>
+<h3 id="anliseobrigatria-4">Análise Obrigatória:</h3>
+<ul>
+<li>Escalabilidade vs densidade de ocorrências</li>
+<li>Overhead de comunicação para combinar resultados</li>
+<li>Load balancing quando ocorrências são irregulares</li>
+</ul>
+<hr />
+<h1 id="exerccio6ordenao">🔍 Exercício 6: Ordenação</h1>
+<p><strong>Aplicação:</strong> Qualquer algoritmo de ordenação com qualquer método de HPC</p>
+<h3 id="especificaes-5">Especificações:</h3>
+<ul>
+<li>Sem especificações</li>
+</ul>
+<h3 id="requisitostcnicos-5">Requisitos Técnicos:</h3>
+<ul>
+<li>Versão serial: loop com comparação simples</li>
+<li>Paralelizar busca dividindo array em chunks</li>
+<li>Combinar resultados de diferentes processos</li>
+<li>Medir throughput (elementos processados por segundo)</li>
+</ul>
+<h3 id="anliseobrigatria-5">Análise Obrigatória:</h3>
+<ul>
+<li>Escalabilidade vs densidade de ocorrências</li>
+<li>Overhead de comunicação para combinar resultados</li>
+<li>Load balancing quando ocorrências são irregulares</li>
+</ul>
+<hr />
+<h1 id="exerccio7algoritmopontodentordepolgono">🔍 Exercício 7: Algoritmo ponto dentor de polígono</h1>
+<p><strong>Aplicação:</strong> Algoritmo do Tiro com qualquer método de HPC</p>
+<h3 id="especificaes-6">Especificações:</h3>
+<ul>
+<li>Sem especificações</li>
+</ul>
+<h3 id="requisitostcnicos-6">Requisitos Técnicos:</h3>
+<ul>
+<li>Versão serial: loop com comparação simples</li>
+<li>Paralelizar busca dividindo array em chunks</li>
+<li>Combinar resultados de diferentes processos</li>
+<li>Medir throughput (elementos processados por segundo)</li>
+</ul>
+<h3 id="anliseobrigatria-6">Análise Obrigatória:</h3>
+<ul>
+<li>Escalabilidade vs densidade de ocorrências</li>
+<li>Overhead de comunicação para combinar resultados</li>
+<li>Load balancing quando ocorrências são irregulares</li>
+</ul>
+<hr />
+<h1 id="exerccio8fechoconvexo">🔍 Exercício 8: Fecho Convexo</h1>
+<p><strong>Aplicação:</strong> Algoritmo de fecho convexo com qualquer método de HPC</p>
+<h3 id="especificaes-7">Especificações:</h3>
+<ul>
+<li>Sem especificações</li>
+</ul>
+<h3 id="requisitostcnicos-7">Requisitos Técnicos:</h3>
+<ul>
+<li>Versão serial: loop com comparação simples</li>
+<li>Paralelizar busca dividindo array em chunks</li>
+<li>Combinar resultados de diferentes processos</li>
+<li>Medir throughput (elementos processados por segundo)</li>
+</ul>
+<h3 id="anliseobrigatria-7">Análise Obrigatória:</h3>
+<ul>
+<li>Escalabilidade vs densidade de ocorrências</li>
+<li>Overhead de comunicação para combinar resultados</li>
+<li>Load balancing quando ocorrências são irregulares</li>
+</ul>
+<hr />
+<h1 id="exerccioextraproblemapropostopeloestudante">🎨 Exercício Extra: Problema Proposto pelo Estudante</h1>
+<h3 id="oportunidadedecriarseuprpriodesafio">💡 Oportunidade de Criar Seu Próprio Desafio</h3>
+<p>Se você deseja explorar um problema específico de sua área de interesse ou tem uma aplicação particular em mente, pode <strong>propor seu próprio exercício</strong>!</p>
+<h3 id="requisitosparaproposta">Requisitos para Proposta:</h3>
+<ol>
+<li><strong>Problema Bem Definido</strong>: Descrição clara do problema computacional</li>
+<li><strong>Relevância</strong>: Aplicação prática em engenharia, ciências ou computação</li>
+<li><strong>Escalabilidade</strong>: Problema deve ser paralelizável/otimizável</li>
+<li><strong>Complexidade Adequada</strong>: Nem trivial nem excessivamente complexo</li>
+</ol>
+<h3 id="exemplosdeproblemasvlidos">Exemplos de Problemas Válidos:</h3>
+<ul>
+<li><strong>Processamento de Imagens</strong>: Filtros, segmentação, análise de features</li>
+<li><strong>Simulação Física</strong>: Dinâmica de fluidos, mecânica dos sólidos, ondas</li>
+<li><strong>Análise de Dados</strong>: Machine learning, estatística, big data</li>
+<li><strong>Algoritmos Numéricos</strong>: Solvers, otimização, álgebra linear</li>
+</ul>
+<h3 id="comosubmeteraproposta">📧 Como Submeter a Proposta:</h3>
+<p>Envie por email ou fórum da disciplina com assunto: <strong>"Proposta de Exercício HPC - [Seu Nome]"</strong></p>
+<hr />
+<p><strong>Boa sorte na exploração de HPC! 🚀</strong></p>
+      </body>
+      </html>
+    
