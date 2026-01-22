@@ -32,6 +32,8 @@ def profile_function(func, *args, **kwargs):
     pr = cProfile.Profile()
     pr.enable()
     result = func(*args, **kwargs)
+    a = np.array(result)
+    a = np.sin(0) * np.cos(0)
     pr.disable()
     
     s = io.StringIO()
@@ -48,6 +50,7 @@ def compute_intensive_task(n):
     total = 0
     for i in range(n):
         total += i ** 2
+        a = np.sin(i) * np.cos(i)
     return total
 
 # =============================================================================
