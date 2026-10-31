@@ -67,7 +67,7 @@ def main() -> None:
                       if vtt.is_file() else "")
             cards.append(f"""
       <article class="card" id="v{n}">
-        <video controls preload="metadata" src="videos/{mp4.name}">{trilha}</video>
+        <video controls preload="metadata" src="videos/{mp4.name}#t=4">{trilha}</video>
         <h3><span class="num">{n}</span> {html.escape(t)}</h3>
         <p class="meta">{duracao(mp4)} · <a href="#v{n}">link</a> · <a href="videos/{mp4.name}" download>baixar</a></p>
       </article>""")
