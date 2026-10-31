@@ -4,9 +4,8 @@ version = "2026.1"
 description = "Computação de Alto Desempenho em Python para Engenharia Civil — 2 aulas de 3h30 (CPU e GPU)"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "CC-BY-4.0 (texto) / MIT (código)" }
 dependencies = [
-    "numpy>=2.0",
+    "numpy>=2.0,<2.5",
     "scipy>=1.13",
     "matplotlib>=3.8",
     "joblib>=1.4",
@@ -21,7 +20,7 @@ dependencies = [
 
 [project.optional-dependencies]
 # GPU NVIDIA (o Colab já traz CuPy; numba-cuda substitui o numba.cuda embutido)
-gpu = ["cupy-cuda12x>=13.3", "numba-cuda>=0.10"]
+gpu = ["cupy-cuda12x[ctk]>=13.3", "numba-cuda[cu12]>=0.10"]
 # ferramentas para executar e testar os notebooks
 dev = ["nbclient>=0.10", "nbformat>=5.10", "nbmake>=1.5", "pytest>=8"]
 # geração dos vídeos (videos/)
