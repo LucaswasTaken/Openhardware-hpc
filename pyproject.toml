@@ -1,0 +1,31 @@
+[project]
+name = "openhardware-hpc"
+version = "2026.1"
+description = "Computação de Alto Desempenho em Python para Engenharia Civil — 2 aulas de 3h30 (CPU e GPU)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "CC-BY-4.0 (texto) / MIT (código)" }
+dependencies = [
+    "numpy>=2.0",
+    "scipy>=1.13",
+    "matplotlib>=3.8",
+    "joblib>=1.4",
+    "numba>=0.61",
+    "threadpoolctl>=3.5",
+    "psutil>=6.0",
+    "line_profiler>=4.1",
+    "array-api-compat>=1.9",
+    "jupyterlab>=4.2",
+    "ipykernel>=6.29",
+]
+
+[project.optional-dependencies]
+# GPU NVIDIA (o Colab já traz CuPy; numba-cuda substitui o numba.cuda embutido)
+gpu = ["cupy-cuda12x>=13.3", "numba-cuda>=0.10"]
+# ferramentas para executar e testar os notebooks
+dev = ["nbclient>=0.10", "nbformat>=5.10", "nbmake>=1.5", "pytest>=8"]
+# geração dos vídeos (videos/)
+videos = ["manim>=0.19", "manim-voiceover[transcribe]>=0.3", "edge-tts>=7.0", "imageio-ffmpeg>=0.5"]
+
+[tool.uv]
+package = false
