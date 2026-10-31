@@ -1,0 +1,128 @@
+1
+00:00:00,000 --> 00:00:02,730
+Por muito tempo, CPU e GPU foram dois
+
+2
+00:00:02,830 --> 00:00:06,020
+mundos separados. Será que isso ainda vale?
+
+3
+00:00:07,100 --> 00:00:10,447
+No modelo clássico, o da T4 do Colab e da maioria das
+
+4
+00:00:10,547 --> 00:00:13,699
+placas de vídeo, a CPU tem a sua memória, a RAM, e
+
+5
+00:00:13,799 --> 00:00:16,626
+a GPU tem a dela, a VRAM. Entre as duas há um
+
+6
+00:00:16,726 --> 00:00:20,920
+barramento, o PCIe, bem mais estreito do que as próprias memórias.
+
+7
+00:00:21,000 --> 00:00:25,284
+Para calcular na GPU, os dados precisam viajar: copiamos da RAM
+
+8
+00:00:25,384 --> 00:00:29,252
+para a VRAM, calculamos, e copiamos o resultado de volta.
+
+9
+00:00:29,333 --> 00:00:32,785
+Medimos isso na aula. Copiar cento e vinte e oito
+
+10
+00:00:32,885 --> 00:00:36,700
+megabytes levou 28 milissegundos; a conta em si, só 4.
+
+11
+00:00:36,800 --> 00:00:39,817
+A viagem custa muito mais do que o cálculo.
+
+12
+00:00:41,000 --> 00:00:45,069
+O CUDA oferece a memória gerenciada: um único array, que a CPU
+
+13
+00:00:45,169 --> 00:00:48,903
+e a GPU enxergam com o mesmo endereço. O código fica mais
+
+14
+00:00:49,003 --> 00:00:53,140
+simples. Mas, numa GPU discreta, isso é uma ilusão de software.
+
+15
+00:00:53,233 --> 00:00:57,608
+Por baixo, as páginas de memória migram pelo mesmo PCIe quando a
+
+16
+00:00:57,708 --> 00:01:02,643
+GPU as toca. Na nossa medida, o primeiro kernel levou 146 milissegundos,
+
+17
+00:01:02,743 --> 00:01:06,908
+porque os dados tiveram que viajar. O segundo, com tudo já na
+
+18
+00:01:07,008 --> 00:01:10,125
+GPU, 5. O custo continua lá, só que escondido.
+
+19
+00:01:11,300 --> 00:01:15,097
+E o hardware está mudando. Ao lado da GPU discreta, surgiram
+
+20
+00:01:15,197 --> 00:01:18,344
+sistemas em que CPU e GPU são ligadas por um canal
+
+21
+00:01:18,444 --> 00:01:22,566
+quase tão largo quanto a memória, com endereços coerentes, como o
+
+22
+00:01:22,666 --> 00:01:26,463
+Grace Hopper da NVIDIA. E chips com uma única memória física
+
+23
+00:01:26,563 --> 00:01:29,776
+para os dois, como os processadores Apple M e o AMD
+
+24
+00:01:29,876 --> 00:01:34,648
+MI300A, do supercomputador El Capitan. Aqui, simplesmente não existe cópia.
+
+25
+00:01:35,833 --> 00:01:39,289
+Mas atenção ao que não muda. A GPU continua sendo milhares
+
+26
+00:01:39,389 --> 00:01:43,152
+de núcleos simples, que executam a mesma instrução em grupos de
+
+27
+00:01:43,252 --> 00:01:46,524
+trinta e dois. Ela só vale a pena com muito paralelismo
+
+28
+00:01:46,624 --> 00:01:50,387
+de dados. A largura de banda e a localidade continuam mandando.
+
+29
+00:01:50,487 --> 00:01:54,741
+E um laço sequencial continua sequencial, com ou sem memória unificada.
+
+30
+00:01:55,933 --> 00:01:59,380
+Então a pergunta mudou. Em vez de quanto custa copiar,
+
+31
+00:01:59,480 --> 00:02:02,992
+pergunte: onde o dado mora, e quem processa melhor esse
+
+32
+00:02:03,092 --> 00:02:05,817
+dado? Na aula, vamos medir isso na prática.
+
