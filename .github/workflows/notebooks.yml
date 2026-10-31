@@ -16,8 +16,9 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.12"
+          activate-environment: true
       - name: Dependências
-        run: uv pip install --system -r requirements.txt nbclient nbformat
+        run: uv pip install -r requirements.txt nbclient nbformat ipykernel
       - name: Aula 1 (CPU)
         run: python tools/run_nb.py notebooks/Aula1_CPU.ipynb | tee aula1.log && ! grep -q ERRO aula1.log
       - name: Aula 2 (GPU pulada, partes de CPU executadas)
