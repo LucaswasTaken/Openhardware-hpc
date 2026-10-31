@@ -63,7 +63,7 @@ def cronometro(f, *args, repeticoes=3, **kw):
 # ---------------------------------------------------------------- 1. medir
 nb.md(f"""
 ## 1. Medir antes de otimizar  ·  0:00–0:20
-{video("01", "Por que paralelizar e como medir", "2 min")}
+{video("01", "Por que paralelizar e como medir", "1 min")}
 
 Uma simulação de engenharia típica é **muitas contas independentes**: casos de carga, posições de um veículo, amostras de Monte Carlo, elementos de uma malha. Antes de paralelizar, precisamos saber **onde o tempo vai**. Regra de ouro: *não otimize o que você não mediu*.
 
@@ -137,7 +137,7 @@ nb.md("""
 # ---------------------------------------------------------------- 2. métricas
 nb.md(f"""
 ## 2. Speedup, eficiência, Amdahl e Gustafson  ·  0:20–0:50
-{video("02", "Speedup, eficiência e lei de Amdahl", "2 min")}
+{video("02", "Speedup, eficiência e lei de Amdahl", "1 min")}
 
 | Métrica | Fórmula | Leitura |
 |---|---|---|
@@ -181,7 +181,7 @@ for p_, t_ in T.items():
 # ---------------------------------------------------------------- 3. threads x processos
 nb.md(f"""
 ## 3. Threads × processos, o GIL e o Python sem GIL  ·  0:50–1:30
-{video("03", "Threads × processos, GIL e Python sem GIL", "3 min")}
+{video("03", "Threads × processos, GIL e Python sem GIL", "1 min")}
 
 - **Thread:** várias linhas de execução no **mesmo** processo, compartilhando memória. Leves.
 - **Processo:** cópia independente do interpretador, com **memória própria**. Mais pesado (criar, enviar dados), mas isolado.
@@ -314,7 +314,7 @@ nb.md("""
 # ---------------------------------------------------------------- 4. numpy/blas/joblib
 nb.md(f"""
 ## 4. Vetorização, BLAS e `joblib`  ·  1:45–2:30
-{video("05", "joblib: estudo paramétrico em 3 linhas", "2 min")}
+{video("05", "joblib: estudo paramétrico em 3 linhas", "1 min")}
 
 Operações de álgebra linear do NumPy (`@`, `solve`) chamam o **BLAS/LAPACK** (OpenBLAS ou MKL), que **já é paralelo** com threads. Ou seja: às vezes você já está usando todos os núcleos sem saber. O `threadpoolctl` mostra e controla isso.
 """)
@@ -413,7 +413,7 @@ nb.md("""
 # ---------------------------------------------------------------- 5. numba
 nb.md(f"""
 ## 5. Numba: compilando o laço  ·  2:30–3:10
-{video("06", "Numba: do laço lento ao código compilado", "2 min")}
+{video("06", "Numba: do laço lento ao código compilado", "1 min")}
 
 Nem tudo vetoriza bem: laços com `if`, acumulações, malhas. O **Numba** compila funções Python para código de máquina (via LLVM) na primeira chamada (*just-in-time*). Com `parallel=True` e `prange`, distribui o laço entre os núcleos — com **threads de verdade**, porque o código compilado não precisa do GIL.
 
@@ -520,7 +520,7 @@ nb.md("""
 # ---------------------------------------------------------------- 6. exercicio guiado
 nb.md(f"""
 ## 6. Exercício guiado e lista de exercícios  ·  3:10–3:30
-{video("11", "Como fazer o relatório: speedup, eficiência e gráficos", "2 min")}
+{video("11", "Como fazer o relatório: speedup, eficiência e gráficos", "1 min")}
 
 **Tarefa (10 min):** num pórtico com 1 milhão de seções, cada seção tem esforços $N$, $M$ e área/módulo $A$, $W$. A tensão máxima é $\\sigma = |N|/A + |M|/W$. Conte quantas seções passam de $f_y = 250$ MPa e encontre a maior tensão. Acelere a versão em Python puro com a ferramenta que preferir e meça o speedup.
 """)

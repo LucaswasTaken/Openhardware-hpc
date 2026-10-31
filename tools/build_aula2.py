@@ -81,7 +81,7 @@ print(f"Python {platform.python_version()} · NumPy {np.__version__} · CuPy {cp
 # ---------------------------------------------------------------- 1. arquitetura
 nb.md(f"""
 ## 1. CPU × GPU  ·  0:00–0:25
-{video("07", "CPU × GPU: milhares de núcleos simples", "2 min")}
+{video("07", "CPU × GPU: milhares de núcleos simples", "1 min")}
 
 | | CPU | GPU |
 |---|---|---|
@@ -111,7 +111,7 @@ registrar("gpu", nome=nome, cc=f"{cc[0]}.{cc[1]}", sms=p["multiProcessorCount"],
 # ---------------------------------------------------------------- 2. memoria unificada
 nb.md(f"""
 ## 2. CPU e GPU ainda são mundos separados?  ·  0:25–0:50
-{video("08b", "CPU e GPU: dois mundos ou um só?", "3 min")}
+{video("08b", "CPU e GPU: dois mundos ou um só?", "2 min")}
 
 Por muito tempo a regra foi: **a GPU tem a sua memória**; antes de calcular, copie os dados da RAM para a VRAM pelo barramento PCIe, e depois copie de volta. Hoje o hardware está mudando:
 
@@ -197,7 +197,7 @@ nb.md("""
 # ---------------------------------------------------------------- 3. cupy
 nb.md(f"""
 ## 3. CuPy: NumPy na GPU, e como medir direito  ·  0:50–1:05
-{video("08", "O gargalo das transferências", "2 min")}
+{video("08", "O gargalo das transferências", "1 min")}
 
 O CuPy imita a API do NumPy: troque `np` por `cp` e a conta roda na GPU. Três regras para medir:
 1. **Aqueça** (a 1ª chamada compila e aloca);
@@ -245,7 +245,7 @@ registrar("matmul", linhas=[dict(n=a, tipo=b, cpu_s=c, gpu_s=d) for a, b, c, d i
 # ---------------------------------------------------------------- 4. kernels
 nb.md(f"""
 ## 4. Escrevendo kernels: grid, block e thread  ·  1:05–1:45
-{video("09", "Grid, block e thread: escrevendo um kernel", "2 min")}
+{video("09", "Grid, block e thread: escrevendo um kernel", "1 min")}
 
 Um **kernel** é a função que **cada thread** da GPU executa. As threads se organizam em **blocos** (até 1024 threads, que compartilham memória rápida), e os blocos formam a **grade** (*grid*). Cada thread descobre "quem ela é" pelo índice global: `i = blockIdx.x * blockDim.x + threadIdx.x` — no Numba, `cuda.grid(1)`.
 
@@ -327,7 +327,7 @@ nb.md("""
 # ---------------------------------------------------------------- 5. calor
 nb.md(f"""
 ## 5. Projeto: equação do calor numa laje  ·  2:00–3:00
-{video("10", "Equação do calor na GPU, passo a passo", "3 min")}
+{video("10", "Equação do calor na GPU, passo a passo", "1 min")}
 
 Laje de concreto (corte 2D) com a face inferior exposta a incêndio (600 °C) e as outras a 20 °C. A temperatura evolui por $\\partial T/\\partial t = \\alpha \\nabla^2 T$. Com diferenças finitas explícitas, cada ponto da malha é atualizado pela média dos vizinhos:
 
@@ -481,7 +481,7 @@ nb.md(f"""
 
 ### Exercícios
 Escolha **um** exercício de [`exercicios/lista.md`](../exercicios/lista.md) e uma tecnologia; use o [modelo de relatório](../exercicios/modelo_relatorio.ipynb).
-{video("11", "Como fazer o relatório", "2 min")}  ·  Exemplos resolvidos: [vídeos 12–14]({"https://lucaswastaken.github.io/Openhardware-hpc"}/#v12)
+{video("11", "Como fazer o relatório", "1 min")}  ·  Exemplos resolvidos: [vídeos 12–14]({"https://lucaswastaken.github.io/Openhardware-hpc"}/#v12)
 """)
 
 nb.save(Path(__file__).resolve().parents[1] / "notebooks" / "Aula2_GPU.ipynb")

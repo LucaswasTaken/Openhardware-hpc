@@ -1,0 +1,62 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:02.415
+Qual é a probabilidade de uma viga
+
+2
+00:00:02.515 --> 00:00:05.300
+falhar? Vamos sortear milhões de vigas.
+
+3
+00:00:06.400 --> 00:00:10.383
+Uma viga tem resistência R, que varia por causa do material,
+
+4
+00:00:10.483 --> 00:00:13.990
+e recebe uma solicitação S, a maior carga do ano, que
+
+5
+00:00:14.090 --> 00:00:17.869
+também varia. Ela falha quando S passa de R. Monte Carlo:
+
+6
+00:00:17.969 --> 00:00:20.796
+sorteie milhões de pares e conte as falhas.
+
+7
+00:00:21.466 --> 00:00:24.465
+Cada lote de amostras é independente, com a sua
+
+8
+00:00:24.565 --> 00:00:29.013
+própria semente aleatória. O ProcessPoolExecutor entrega os lotes aos
+
+9
+00:00:29.113 --> 00:00:31.518
+processos, e no fim somamos as falhas.
+
+10
+00:00:32.200 --> 00:00:35.285
+O speedup chegou a 2.4 vezes, e não ao número
+
+11
+00:00:35.385 --> 00:00:40.098
+de processos. Criar processos, enviar as tarefas e juntar resultados
+
+12
+00:00:40.198 --> 00:00:44.628
+custa tempo. E núcleos lógicos não são núcleos físicos inteiros.
+
+13
+00:00:44.700 --> 00:00:48.761
+Um detalhe prático: no Windows e no macOS, cada processo novo
+
+14
+00:00:48.861 --> 00:00:52.990
+começa do zero e precisa importar a função do trabalhador. Por
+
+15
+00:00:53.090 --> 00:00:57.152
+isso, no notebook, gravamos essa função num arquivo ponto py.
+

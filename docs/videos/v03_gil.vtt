@@ -1,0 +1,66 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.860
+Threads ou processos? E o que é esse tal de GIL?
+
+2
+00:00:04.933 --> 00:00:08.951
+Um processo é uma cópia independente do interpretador, com a sua
+
+3
+00:00:09.051 --> 00:00:13.263
+própria memória. Eles rodam de verdade em paralelo, mas custam para
+
+4
+00:00:13.363 --> 00:00:16.545
+criar, e os dados precisam ser copiados entre eles.
+
+5
+00:00:17.233 --> 00:00:21.041
+Threads são mais leves e compartilham a mesma memória. Mas no
+
+6
+00:00:21.141 --> 00:00:25.397
+Python tradicional existe o GIL, uma trava global: como um microfone
+
+7
+00:00:25.497 --> 00:00:29.241
+numa reunião, só quem está com ele executa código Python. As
+
+8
+00:00:29.341 --> 00:00:32.445
+threads se revezam, e o laço não fica mais rápido.
+
+9
+00:00:33.133 --> 00:00:38.322
+Medimos na aula. Um laço em Python puro com quatro threads: speedup
+
+10
+00:00:38.422 --> 00:00:43.296
+de 1.0, ou seja, nada. Já esperando leitura de arquivo ou rede,
+
+11
+00:00:43.396 --> 00:00:48.585
+as threads ajudam, 4 vezes, porque quem espera solta o microfone. E
+
+12
+00:00:48.685 --> 00:00:53.243
+a novidade: desde o Python 3.13 existe a versão sem GIL. No
+
+13
+00:00:53.343 --> 00:00:57.585
+Python 3.14t, o mesmo laço ficou 2.6 vezes mais rápido.
+
+14
+00:00:57.666 --> 00:01:01.342
+Mesmo sem o GIL, cuidado com duas threads escrevendo
+
+15
+00:01:01.442 --> 00:01:05.770
+na mesma variável. Para cálculo numérico, o caminho principal
+
+16
+00:01:05.870 --> 00:01:09.110
+continua sendo processos, NumPy, Numba ou GPU.
+

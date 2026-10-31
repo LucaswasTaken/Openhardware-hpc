@@ -1,0 +1,62 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.245
+Quase dois mil projetos de viga para verificar.
+
+2
+00:00:03.345 --> 00:00:06.164
+Vamos usar todos os núcleos com o joblib.
+
+3
+00:00:07.233 --> 00:00:11.711
+No projeto preliminar, testamos combinações de vão, altura da seção e
+
+4
+00:00:11.811 --> 00:00:16.753
+carga. Cada combinação é uma análise por elementos finitos, independente das
+
+5
+00:00:16.853 --> 00:00:20.933
+outras. É o caso clássico de problema embaraçosamente paralelo.
+
+6
+00:00:21.633 --> 00:00:25.567
+O laço serial vira, com o joblib, uma única linha: Parallel,
+
+7
+00:00:25.667 --> 00:00:28.661
+com n jobs igual a menos um para usar todos os
+
+8
+00:00:28.761 --> 00:00:33.166
+núcleos, e delayed na função. O joblib cria os processos, distribui
+
+9
+00:00:33.266 --> 00:00:36.125
+as tarefas e devolve os resultados na ordem.
+
+10
+00:00:36.800 --> 00:00:40.126
+Um cuidado importante. O NumPy usa o BLAS, que já é
+
+11
+00:00:40.226 --> 00:00:45.231
+paralelo com threads. Quatro processos, cada um com quatro threads, disputam
+
+12
+00:00:45.331 --> 00:00:49.128
+quatro núcleos e tudo fica mais lento. A solução é limitar
+
+13
+00:00:49.228 --> 00:00:52.084
+o BLAS a uma thread dentro de cada processo.
+
+14
+00:00:52.766 --> 00:00:57.890
+Na aula, o estudo ficou 2.4 vezes mais rápido. Três linhas de código,
+
+15
+00:00:57.990 --> 00:01:02.962
+e o resultado de engenharia sai junto: a altura mínima de cada vão.
+

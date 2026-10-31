@@ -9,7 +9,7 @@ nb.md(f"""
 {colab_badge("exercicios/modelo_relatorio.ipynb")}
 
 # Relatório de HPC — modelo
-{video("11", "Como fazer o relatório: speedup, eficiência e gráficos", "2 min")}
+{video("11", "Como fazer o relatório: speedup, eficiência e gráficos", "1 min")}
 
 **Nome:** …  **Exercício:** …  **Tecnologia:** …
 

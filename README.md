@@ -8,7 +8,9 @@
 
 Introdução prática à **computação de alto desempenho (HPC)** em Python para estudantes de Engenharia Civil: medir, entender os limites (Amdahl, memória, transferências) e acelerar problemas reais — da CPU com vários núcleos à GPU.
 
-**Tudo roda no Google Colab, sem instalar nada.** Cada bloco das aulas tem um **vídeo curto** (1–3 min) com a ideia central animada.
+**Tudo roda no Google Colab, sem instalar nada.** Cada bloco das aulas tem um **vídeo curto** (~1 min) com a ideia central animada.
+
+👩‍🏫 **Vai ministrar?** Veja o [roteiro do professor](ROTEIRO_DO_PROFESSOR.md): preparação, minuto a minuto de cada aula, números esperados e o que cortar se o tempo apertar.
 
 ---
 
@@ -38,7 +40,7 @@ Introdução prática à **computação de alto desempenho (HPC)** em Python par
 
 ## 🎬 Vídeos
 
-Vídeos curtos, com animações e narração, para rever os conceitos — **[assista aqui](https://lucaswastaken.github.io/Openhardware-hpc/)**.
+Vídeos de ~1 minuto, com animações e narração, para rever os conceitos — **[assista aqui](https://lucaswastaken.github.io/Openhardware-hpc/)**.
 
 | # | Vídeo | Aula |
 |---|---|---|
