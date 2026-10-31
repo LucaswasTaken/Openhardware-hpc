@@ -1,231 +1,109 @@
 # Computação de Alto Desempenho em Python
-## Curso para Engenharia Civil — 3 Aulas × 2h
+## Curso para Engenharia Civil — 2 aulas de 3h30 (CPU e GPU)
 
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
-[![NumPy](https://img.shields.io/badge/NumPy-1.20+-orange.svg)](https://numpy.org/)
-[![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-brightgreen.svg)](https://jupyter.org/)
+[![Aula 1 no Colab](https://img.shields.io/badge/Aula_1_CPU-Abrir_no_Colab-F9AB00?logo=googlecolab)](https://colab.research.google.com/github/LucaswasTaken/Openhardware-hpc/blob/master/notebooks/Aula1_CPU.ipynb)
+[![Aula 2 no Colab](https://img.shields.io/badge/Aula_2_GPU-Abrir_no_Colab-F9AB00?logo=googlecolab)](https://colab.research.google.com/github/LucaswasTaken/Openhardware-hpc/blob/master/notebooks/Aula2_GPU.ipynb)
+[![Vídeos](https://img.shields.io/badge/Vídeos-curtos-red?logo=youtube)](https://lucaswastaken.github.io/Openhardware-hpc/)
+![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)
 
----
+Introdução prática à **computação de alto desempenho (HPC)** em Python para estudantes de Engenharia Civil: medir, entender os limites (Amdahl, memória, transferências) e acelerar problemas reais — da CPU com vários núcleos à GPU.
 
-## 🎯 Visão Geral
+**Tudo roda no Google Colab, sem instalar nada.** Cada bloco das aulas tem um **vídeo curto** (~1 min) com a ideia central animada.
 
-Este curso oferece uma introdução prática à **Computação de Alto Desempenho (HPC)** em Python, especificamente voltado para estudantes de **Engenharia Civil**. O objetivo é capacitar os alunos a compreender e aplicar conceitos de paralelismo e otimização de performance em problemas de engenharia.
-
-### Público-Alvo
-- Estudantes de Engenharia Civil com experiência básica em programação
-- Iniciantes em paralelismo e computação de alto desempenho
-- Interessados em acelerar simulações e cálculos de engenharia
-
-### Objetivos do Curso
-- Compreender princípios fundamentais de paralelismo e performance
-- Aplicar técnicas de paralelização em CPU e GPU
-- Implementar soluções de HPC para problemas reais de engenharia
-- Medir e avaliar ganhos de performance (speedup e escalabilidade)
+👩‍🏫 **Vai ministrar?** Veja o [roteiro do professor](ROTEIRO_DO_PROFESSOR.md): preparação, minuto a minuto de cada aula, números esperados e o que cortar se o tempo apertar.
 
 ---
 
-## 📚 Estrutura do Curso
+## 📚 Estrutura
 
-### 🧩 Aula 1 – Pensando em Paralelismo e Performance (CPU)
-**Duração:** 2 horas  
-**Foco:** Conceitos fundamentais de paralelismo e implementação com multiprocessing
+### 🧩 Aula 1 — Paralelismo e desempenho na CPU (3h30) · [notebook](notebooks/Aula1_CPU.ipynb)
+| Tempo | Bloco | Exemplo de engenharia |
+|---|---|---|
+| 0:00–0:20 | Medir antes de otimizar (`perf_counter`, `%timeit`, `cProfile`, `line_profiler`) | envoltória de momentos numa viga |
+| 0:20–0:50 | Speedup, eficiência, Amdahl, Gustafson, escalabilidade forte/fraca | — |
+| 0:50–1:30 | Threads × processos, GIL e **Python 3.14 sem GIL** | probabilidade de falha por Monte Carlo |
+| 1:45–2:30 | Vetorização, BLAS e `joblib` | estudo paramétrico de vigas (MEF) |
+| 2:30–3:10 | Numba (`@njit`, `prange`) | matriz de rigidez de uma treliça com 2 milhões de barras |
+| 3:10–3:30 | Exercício guiado e lista de exercícios | verificação de tensões em 1 milhão de seções |
 
-#### Conteúdo Principal:
-- Introdução ao paralelismo: da computação serial ao paralela
-- Conceitos de speedup, eficiência e overhead
-- Amdahl's Law e Gustafson's Law
-- Arquitetura de CPU: núcleos, cache e memória
-- Diferenças entre threads e processos
-- Global Interpreter Lock (GIL) em Python
-- Paralelização com `multiprocessing`
-
-#### Exemplos Práticos:
-- Soma de vetores: serial vs NumPy vs threading
-- Estimativa de π por Monte Carlo paralelo
-- Multiplicação de matrizes em blocos
-- Aplicações em Finite Element Method (FEM)
-
-### ⚙️ Aula 2 – Paralelismo Avançado e Escalabilidade
-**Duração:** 2 horas  
-**Foco:** Ferramentas avançadas de paralelização e medição de performance
-
-#### Conteúdo Principal:
-- Strong vs Weak scaling
-- Medição de performance: `timeit`, `cProfile`
-- `ProcessPoolExecutor` e `concurrent.futures`
-- Biblioteca `joblib` para loops paralelos
-- Compilação JIT com Numba
-- Paralelismo automático e vetorização SIMD
-- Limites práticos do paralelismo
-
-#### Exemplos Práticos:
-- Integração numérica com futures
-- Regressões lineares paralelas com joblib
-- Multiplicação de matrizes com Numba
-- Análise de escalabilidade
-- Aplicações em simulações estruturais
-
-### ⚡ Aula 3 – GPUs em Python e Aplicações em Engenharia
-**Duração:** 2 horas  
-**Foco:** Paralelismo massivo com GPU usando CuPy e Numba CUDA
-
-#### Conteúdo Principal:
-- Arquitetura GPU: threads, blocks, grids
-- Hierarquia de memória GPU
-- CuPy: NumPy para GPU
-- Numba CUDA: kernels customizados
-- Transferência eficiente de dados Host↔Device
-- Integração CPU + GPU
-- Ferramentas avançadas: Dask, PyTorch
-
-#### Exemplos Práticos:
-- Operações vetoriais em GPU
-- Multiplicação de matrizes massivas
-- Monte Carlo π em GPU
-- Simulação de difusão de calor 2D
-- Comparação CPU vs GPU performance
+### ⚡ Aula 2 — GPU: paralelismo massivo (3h30) · [notebook](notebooks/Aula2_GPU.ipynb)
+| Tempo | Bloco | Exemplo |
+|---|---|---|
+| 0:00–0:25 | CPU × GPU: núcleos, warps (SIMT), memória | propriedades da sua GPU |
+| 0:25–0:50 | **CPU e GPU ainda são mundos separados?** Memória unificada (Apple M, Grace Hopper, MI300A) × GPU discreta | cópia explícita × memória gerenciada × prefetch |
+| 0:50–1:05 | CuPy e como medir direito (aquecer, sincronizar) | soma de vetores; matmul `float32` × `float64` |
+| 1:05–1:45 | Kernels: `ElementwiseKernel` e Numba-CUDA (grid, block, thread) | tensão de von Mises; Monte Carlo |
+| 2:00–3:00 | Projeto: equação do calor 2D, do Python puro à GPU, com **um código para CPU e GPU** (Array API) | laje em incêndio |
+| 3:00–3:30 | Quando usar GPU? Checklist e exercícios | — |
 
 ---
 
-## 🛠️ Tecnologias e Ferramentas
+## 🎬 Vídeos
 
-### Bibliotecas Principais:
-- **NumPy**: Computação científica fundamental
-- **Multiprocessing**: Paralelismo em CPU
-- **Joblib**: Paralelização de loops
-- **Numba**: Compilação JIT e CUDA
-- **CuPy**: NumPy para GPU
-- **Matplotlib**: Visualização de resultados
-- **Jupyter**: Ambiente interativo
+Vídeos de ~1 minuto, com animações e narração, para rever os conceitos — **[assista aqui](https://lucaswastaken.github.io/Openhardware-hpc/)**.
 
-### Pré-requisitos de Sistema:
-- Python 3.8+ 
-- 8GB+ RAM recomendado
-- GPU NVIDIA (opcional, para Aula 3)
-- CUDA Toolkit (para exemplos GPU)
-
----
-
-## 📁 Organização dos Arquivos
-
-```
-├── README.md                          # Este arquivo
-├── HPC_Python_Course_Plan.md         # Plano detalhado do curso
-├── exercice_list.md                  # Lista de exercícios
-├── notebooks/
-│   ├── Aula1_Paralelismo_CPU.ipynb  # Notebook da Aula 1
-│   ├── Aula2_Paralelismo_Avancado.ipynb # Notebook da Aula 2
-│   └── Aula3_GPU_Computing.ipynb    # Notebook da Aula 3
-├── src/
-│   ├── aula1/                        # Códigos da Aula 1
-│   │   ├── vector_sum_serial.py
-│   │   ├── vector_sum_numpy.py
-│   │   ├── vector_sum_threading.py
-│   │   ├── pi_montecarlo_multiprocessing.py
-│   │   └── matrix_multiplication_multiprocessing.py
-│   ├── aula2/                        # Códigos da Aula 2
-│   │   ├── integrate_trapezoidal_futures.py
-│   │   ├── linear_regression_joblib.py
-│   │   ├── matrix_mult_numba.py
-│   │   └── scaling_vector_sum.py
-│   └── aula3/                        # Códigos da Aula 3
-│       ├── vector_sum_cupy.py
-│       ├── matrix_multiplication_cupy.py
-│       ├── pi_montecarlo_cuda.py
-│       └── heat_equation_gpu.py
-└── deprecated/                       # Códigos legados (mantidos para referência)
-```
+| # | Vídeo | Aula |
+|---|---|---|
+| 01 | Por que paralelizar e como medir | 1 |
+| 02 | Speedup, eficiência e a lei de Amdahl | 1 |
+| 03 | Threads × processos, GIL e Python sem GIL | 1 |
+| 04 | Monte Carlo em paralelo com processos | 1 |
+| 05 | joblib: estudo paramétrico em 3 linhas | 1 |
+| 06 | Numba: do laço lento ao código compilado | 1 |
+| 07 | CPU × GPU: milhares de núcleos simples | 2 |
+| 08 | O gargalo das transferências | 2 |
+| 08b | CPU e GPU: dois mundos ou um só? | 2 |
+| 09 | Grid, block e thread: escrevendo um kernel | 2 |
+| 10 | Equação do calor na GPU, passo a passo | 2 |
+| 11 | Como fazer o relatório | Exercícios |
+| 12–14 | Exemplos resolvidos (energia de deformação com Numba, probabilidade de falha com CuPy, busca de nós com joblib) | Exercícios |
 
 ---
 
-## 🚀 Como Usar Este Material
+## 📝 Exercícios
 
-### 1. Configuração do Ambiente
+[`exercicios/lista.md`](exercicios/lista.md) ([.docx](exercicios/lista.docx)): escolha **um** de 8 exercícios (ou proponha o seu) e **uma** tecnologia, e entregue um relatório com speedup, eficiência e escalabilidade. O [modelo de relatório](exercicios/modelo_relatorio.ipynb) já mede e desenha os gráficos.
+
+---
+
+## 🚀 Como usar
+
+### No Colab (recomendado)
+Clique nos botões no topo. Na Aula 2, escolha *Ambiente de execução → Alterar o tipo → **T4 GPU***.
+
+> O Colab gratuito tem **2 núcleos de CPU**: o speedup máximo na CPU fica perto de 2×. Isso faz parte da lição — rode também na sua máquina e compare.
+
+### No seu computador
 ```bash
-# Instalar dependências básicas
-pip install numpy matplotlib jupyter joblib numba
+git clone https://github.com/LucaswasTaken/Openhardware-hpc && cd Openhardware-hpc
+uv venv --python 3.12 && uv pip install -r requirements.txt
+# GPU NVIDIA (opcional):
+uv pip install "cupy-cuda12x[ctk]" "numba-cuda[cu12]"
+uv run jupyter lab
+```
+Ou com conda: `conda env create -f environment.yml`.
 
-# Para exemplos GPU (opcional)
-pip install cupy-cuda11x  # ou cupy-cuda12x dependendo da versão CUDA
+---
+
+## 📁 Organização
+
+```
+notebooks/            Aula1_CPU.ipynb, Aula2_GPU.ipynb (publicados já executados)
+  results/            números medidos ao rodar as aulas (usados nos slides e vídeos)
+exercicios/           lista.md, lista.docx, modelo_relatorio.ipynb
+presentations/        slides das 2 aulas (Marp) e o script que gera as figuras
+videos/               roteiros, cenas (Manim) e o script que gera os vídeos
+docs/                 página dos vídeos (GitHub Pages)
+tools/                scripts que geram e executam os notebooks
+deprecated/           versão anterior (3 aulas de 2h, 2025) e o material MPI/OpenCL de 2020
 ```
 
-### 2. Executar os Notebooks
-```bash
-# Navegar até o diretório do curso
-cd Openhardware-hpc
-
-# Iniciar Jupyter Notebook
-jupyter notebook
-
-# Abrir o notebook da aula desejada em notebooks/
-```
-
-### 3. Executar Códigos Standalone
-```bash
-# Exemplos da Aula 1
-python src/aula1/vector_sum_serial.py
-python src/aula1/pi_montecarlo_multiprocessing.py
-
-# Exemplos da Aula 2
-python src/aula2/matrix_mult_numba.py
-
-# Exemplos da Aula 3 (requer GPU)
-python src/aula3/vector_sum_cupy.py
-```
+Os notebooks são gerados por `tools/build_aula1.py` e `tools/build_aula2.py` — edite os scripts e rode `python tools/build_aula1.py && python tools/run_nb.py notebooks/Aula1_CPU.ipynb`.
 
 ---
 
-## 📊 Resultados de Aprendizagem
+## 📞 Contato
 
-Ao final do curso, os alunos serão capazes de:
+**Instrutor:** Lucas Gouveia Omena Lopes · dúvidas e sugestões: [issues](https://github.com/LucaswasTaken/Openhardware-hpc/issues).
 
-1. **Compreender** conceitos fundamentais de paralelismo e performance
-2. **Implementar** soluções paralelas para problemas CPU-bound usando multiprocessing
-3. **Utilizar** ferramentas avançadas como joblib e Numba para otimização
-4. **Aplicar** computação GPU em Python com CuPy e Numba CUDA
-5. **Medir e analisar** ganhos de performance e escalabilidade
-6. **Resolver** problemas reais de engenharia civil com HPC
-
----
-
-## 🎯 Aplicações em Engenharia Civil
-
-### Simulações Estruturais
-- Análise de elementos finitos (FEM) paralela
-- Montagem paralela de matrizes de rigidez
-- Simulações de vibração e dinâmica estrutural
-
-### Análise de Fluxo e Transporte
-- Computational Fluid Dynamics (CFD)
-- Difusão de calor e umidade
-- Transporte de contaminantes
-
-### Métodos Estocásticos
-- Simulações Monte Carlo para confiabilidade
-- Análise de incertezas em materiais
-- Otimização probabilística
-
-### Processamento de Dados
-- Análise de grandes datasets de sensores
-- Processamento de imagens de inspeção
-- Machine learning para predição de falhas
-
----
-
-## 📞 Contato e Suporte
-
-**Instrutor:** Lucas Gouveia Omena Lopes  
-**Repositório:** [GitHub - Openhardware-hpc](https://github.com/LucaswasTaken/Openhardware-hpc)
-
-Para dúvidas e sugestões, abra uma [issue](https://github.com/LucaswasTaken/Openhardware-hpc/issues) no repositório.
-
----
-
-## 📄 Licença
-
-Este material educacional está disponível sob licença open source. Veja o arquivo `LICENSE` para detalhes.
-
----
-
-**Última atualização:** Outubro 2025  
-**Versão:** 1.0
+**Última atualização:** outubro de 2026 — versão 2 (2 aulas de 3h30).

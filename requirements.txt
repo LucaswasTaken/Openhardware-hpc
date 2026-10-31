@@ -1,0 +1,16 @@
+# Uso local:  uv venv --python 3.12 && uv pip install -r requirements.txt
+numpy>=2.0,<2.5
+scipy>=1.13
+matplotlib>=3.8
+joblib>=1.4
+numba>=0.61
+threadpoolctl>=3.5
+psutil>=6.0
+line_profiler>=4.1
+array-api-compat>=1.9
+jupyterlab>=4.2
+ipykernel
+uv
+# GPU NVIDIA (opcional; o Colab já traz o CuPy):
+# cupy-cuda12x[ctk]>=13.3
+# numba-cuda[cu12]>=0.10

@@ -1,0 +1,26 @@
+name: notebooks
+
+# Executa os notebooks em CPU (sem GPU, as células %%gpu avisam e pulam) para garantir que nada quebrou.
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  executar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - name: Dependências
+        run: uv pip install --system -r requirements.txt nbclient nbformat
+      - name: Aula 1 (CPU)
+        run: python tools/run_nb.py notebooks/Aula1_CPU.ipynb | tee aula1.log && ! grep -q ERRO aula1.log
+      - name: Aula 2 (GPU pulada, partes de CPU executadas)
+        run: python tools/run_nb.py notebooks/Aula2_GPU.ipynb | tee aula2.log && ! grep -q ERRO aula2.log
+      - name: Modelo de relatório
+        run: python tools/run_nb.py exercicios/modelo_relatorio.ipynb | tee modelo.log && ! grep -q ERRO modelo.log

@@ -1,0 +1,50 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.676
+E quando o problema não cabe em operações de array? Compile o laço.
+
+2
+00:00:05.766 --> 00:00:09.343
+O Numba lê a sua função Python, com laços e condições,
+
+3
+00:00:09.443 --> 00:00:13.768
+e na primeira chamada compila tudo para código de máquina, usando
+
+4
+00:00:13.868 --> 00:00:17.513
+o LLVM, o mesmo compilador de linguagens como C e Rust.
+
+5
+00:00:17.613 --> 00:00:21.938
+A primeira chamada demora uns segundos. As seguintes são rápidas.
+
+6
+00:00:22.633 --> 00:00:25.414
+Com parallel igual a True e prange no lugar de
+
+7
+00:00:25.514 --> 00:00:28.922
+range, o Numba divide as iterações entre os núcleos, com
+
+8
+00:00:29.022 --> 00:00:32.556
+threads de verdade: código compilado não precisa do GIL. A
+
+9
+00:00:32.656 --> 00:00:36.189
+condição é que cada iteração seja independente das outras.
+
+10
+00:00:36.866 --> 00:00:41.166
+O resultado na aula: o NumPy foi 40 vezes mais rápido
+
+11
+00:00:41.266 --> 00:00:45.399
+que o Python puro. O Numba em um núcleo, 157 vezes,
+
+12
+00:00:45.499 --> 00:00:50.878
+porque não cria arrays temporários. E o Numba paralelo, 725 vezes.
+

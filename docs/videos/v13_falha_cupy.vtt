@@ -1,0 +1,50 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.686
+Exemplo resolvido: a probabilidade de falha de uma
+
+2
+00:00:03.786 --> 00:00:06.716
+viga, sorteando milhões de casos na GPU.
+
+3
+00:00:07.800 --> 00:00:12.151
+As amostras são geradas e testadas na própria GPU. Nada é copiado
+
+4
+00:00:12.251 --> 00:00:16.123
+para lá, e só um número volta: a probabilidade de falha. É
+
+5
+00:00:16.223 --> 00:00:20.780
+o melhor caso para a GPU: muita conta e quase nenhuma transferência.
+
+6
+00:00:21.466 --> 00:00:25.586
+Com cinquenta milhões de amostras, a GPU foi 6 vezes mais
+
+7
+00:00:25.686 --> 00:00:29.214
+rápida que a CPU, mesmo sendo uma GPU de entrada.
+
+8
+00:00:29.900 --> 00:00:34.410
+A probabilidade de falha deu cerca de 5.5 em mil. E quantas amostras
+
+9
+00:00:34.510 --> 00:00:38.207
+bastam? O erro de Monte Carlo cai com um sobre a raiz de
+
+10
+00:00:38.307 --> 00:00:42.479
+N: para dividir o erro por dez, são cem vezes mais amostras. Um
+
+11
+00:00:42.579 --> 00:00:48.106
+cuidado: cada processo ou bloco precisa de uma semente diferente, senão você repete
+
+12
+00:00:48.206 --> 00:00:51.904
+as mesmas amostras e acha que tem mais dados do que tem.
+

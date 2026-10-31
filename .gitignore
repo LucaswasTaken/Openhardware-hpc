@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+# arquivos que os notebooks gravam ao rodar
+notebooks/workers_*.py
+notebooks/viga_mef.py
+notebooks/gil_demo.py
+notebooks/perfil.out
+videos/media/
+videos/.cache/
+videos/pilot_sheet.png
+.venv-videos/
+/build_*
+videos/mp4/
+hidroides_*.csv

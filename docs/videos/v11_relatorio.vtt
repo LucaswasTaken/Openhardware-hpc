@@ -1,0 +1,62 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.250
+Você escolheu um exercício e uma tecnologia.
+
+2
+00:00:03.350 --> 00:00:06.068
+Como mostrar que acelerou de verdade?
+
+3
+00:00:07.166 --> 00:00:11.992
+São quatro passos. Primeiro, correção: um código rápido e errado não vale
+
+4
+00:00:12.092 --> 00:00:17.794
+nada; compare sempre com uma referência. Segundo, medida honesta: aqueça antes, repita
+
+5
+00:00:17.894 --> 00:00:22.248
+e fique com o menor tempo, e na GPU, sincronize. Terceiro, speedup
+
+6
+00:00:22.348 --> 00:00:26.836
+e eficiência, variando o número de núcleos ou o tamanho do problema.
+
+7
+00:00:26.936 --> 00:00:29.602
+Quarto, a análise: o que limitou o ganho?
+
+8
+00:00:30.300 --> 00:00:34.840
+Dois gráficos são obrigatórios: o speedup em função do número de núcleos,
+
+9
+00:00:34.940 --> 00:00:38.972
+com a reta ideal para comparar, e a eficiência, que mostra quanto
+
+10
+00:00:39.072 --> 00:00:43.422
+do hardware você aproveitou. O modelo de relatório do curso já desenha
+
+11
+00:00:43.522 --> 00:00:46.664
+os dois: basta trocar a função de exemplo pela sua.
+
+12
+00:00:47.333 --> 00:00:51.525
+Na análise, responda: o problema é limitado pelo cálculo ou pela
+
+13
+00:00:51.625 --> 00:00:55.952
+memória? Quanto custou criar processos ou copiar dados para a GPU?
+
+14
+00:00:56.052 --> 00:01:00.043
+Qual a fração serial? E o resultado mudaria em outra máquina?
+
+15
+00:01:00.143 --> 00:01:04.537
+Os próximos três vídeos mostram exemplos parecidos com os da lista.
+

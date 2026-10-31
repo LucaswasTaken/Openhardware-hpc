@@ -1,0 +1,66 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.153
+Por que engenheiros precisam de computação de
+
+2
+00:00:03.253 --> 00:00:05.756
+alto desempenho? E por onde começar?
+
+3
+00:00:06.833 --> 00:00:10.229
+Boa parte das simulações de engenharia é a mesma conta
+
+4
+00:00:10.329 --> 00:00:14.697
+repetida muitas vezes, com dados diferentes: casos de carga, posições
+
+5
+00:00:14.797 --> 00:00:18.582
+de um veículo numa ponte, amostras de Monte Carlo, elementos
+
+6
+00:00:18.682 --> 00:00:22.467
+de uma malha. Contas independentes podem ser feitas ao mesmo
+
+7
+00:00:22.567 --> 00:00:24.733
+tempo. Isso é paralelismo de dados.
+
+8
+00:00:25.433 --> 00:00:29.923
+Antes de paralelizar, meça. O perf counter diz quanto tempo levou. O
+
+9
+00:00:30.023 --> 00:00:34.446
+timeit repete a medida e mostra a variação. O cProfile mostra quais
+
+10
+00:00:34.546 --> 00:00:38.969
+funções gastam o tempo, e o line profiler, quais linhas. Sem medir,
+
+11
+00:00:39.069 --> 00:00:42.277
+você corre o risco de acelerar o que não importa.
+
+12
+00:00:42.966 --> 00:00:46.697
+No nosso exemplo, a envoltória de momentos de uma viga, o
+
+13
+00:00:46.797 --> 00:00:51.199
+perfilador mostrou mais de dois milhões de chamadas à mesma função.
+
+14
+00:00:51.299 --> 00:00:54.290
+Só de deixar o NumPy fazer o laço, em C, ficou
+
+15
+00:00:54.390 --> 00:00:57.314
+10 vezes mais rápido, ainda num único núcleo.
+
+16
+00:00:57.400 --> 00:01:01.908
+A primeira lição: use bem um núcleo. Depois, vários.
+

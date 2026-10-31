@@ -1,0 +1,54 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.126
+Exemplo resolvido: a energia de deformação de
+
+2
+00:00:03.226 --> 00:00:05.852
+cinquenta milhões de molas, com Numba.
+
+3
+00:00:06.933 --> 00:00:10.327
+A energia é a soma de meio k delta ao quadrado de cada
+
+4
+00:00:10.427 --> 00:00:15.310
+mola: uma redução, muitos valores viram um número. Com prange, o Numba divide
+
+5
+00:00:15.410 --> 00:00:19.646
+o laço entre os núcleos. E ele reconhece o mais igual como redução:
+
+6
+00:00:19.746 --> 00:00:23.529
+cada thread soma a sua parte, e no fim as somas parciais são
+
+7
+00:00:23.629 --> 00:00:28.577
+juntadas. Sem isso, duas threads escreveriam na mesma variável ao mesmo tempo.
+
+8
+00:00:29.266 --> 00:00:34.318
+O resultado: Numba paralelo ficou 629 vezes mais rápido que
+
+9
+00:00:34.418 --> 00:00:38.334
+Python puro e 7 vezes mais rápido que o NumPy.
+
+10
+00:00:38.433 --> 00:00:42.682
+E a análise: lendo dois vetores, chegamos a cerca de 36 gigabytes
+
+11
+00:00:42.782 --> 00:00:47.366
+por segundo. São só três contas para cada dezesseis bytes lidos, então
+
+12
+00:00:47.466 --> 00:00:51.715
+quem limita é a memória, não o cálculo. No seu relatório, compare
+
+13
+00:00:51.815 --> 00:00:55.061
+esse número com a largura de banda da sua máquina.
+

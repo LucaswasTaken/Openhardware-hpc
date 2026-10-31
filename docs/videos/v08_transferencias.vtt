@@ -1,0 +1,62 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.940
+Por que somar dois vetores na GPU pode ser mais lento do que na CPU?
+
+2
+00:00:06.033 --> 00:00:11.813
+Somar vinte milhões de números levou 35 milissegundos na CPU. Na GPU,
+
+3
+00:00:11.913 --> 00:00:16.925
+só a conta, 3.4. Mas, incluindo copiar os vetores para a GPU
+
+4
+00:00:17.025 --> 00:00:21.101
+e o resultado de volta, 61: mais lento que a CPU.
+
+5
+00:00:21.800 --> 00:00:26.264
+O segredo é quantas contas você faz para cada byte que move. A soma
+
+6
+00:00:26.364 --> 00:00:30.555
+faz uma conta para cada doze bytes: quem manda é a memória, e o
+
+7
+00:00:30.655 --> 00:00:36.073
+cano até a GPU é estreito. Já a multiplicação de matrizes reaproveita cada número
+
+8
+00:00:36.173 --> 00:00:39.820
+muitas vezes. Muita conta por byte, e aí a GPU dispara.
+
+9
+00:00:40.500 --> 00:00:44.512
+Com matrizes de 4096 por 4096, a GPU em precisão
+
+10
+00:00:44.612 --> 00:00:48.967
+simples, float32, foi 8 vezes mais rápida que a CPU.
+
+11
+00:00:49.067 --> 00:00:54.622
+Mas, em precisão dupla, float64, ela despencou: placas de consumo,
+
+12
+00:00:54.722 --> 00:00:59.077
+como a T4 e as GeForce, têm pouquíssimas unidades de
+
+13
+00:00:59.177 --> 00:01:04.304
+precisão dupla. Confira se float32 basta para o seu problema.
+
+14
+00:01:04.400 --> 00:01:07.486
+A regra prática: leve o dado uma vez, faça
+
+15
+00:01:07.586 --> 00:01:10.900
+muitas contas por lá, e traga só o resultado.
+
