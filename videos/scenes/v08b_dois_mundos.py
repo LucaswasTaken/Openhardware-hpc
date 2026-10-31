@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from manim import (DOWN, LEFT, ORIGIN, RIGHT, UP, Arrow, Create, DoubleArrow, FadeIn, FadeOut, GrowFromEdge,
                    Indicate, LaggedStart, Line, ReplacementTransform, Square, Transform, VGroup, Write)
 
-from common import BAD_C, CPU_C, DATA_C, GPU_C, MEM_C, MUTED, OK_C, CursoScene, results
+from common import BAD_C, CPU_C, DATA_C, GPU_C, MEM_C, MUTED, OK_C, CursoScene, cabe, results
 
 R = results(2)
 GPU_NOME = R.get("gpu", {}).get("nome", "GPU")
@@ -80,7 +80,7 @@ class DoisMundos(CursoScene):
         self.limpa()
 
         # ---- memória gerenciada: a ilusão
-        topo = self.topo("Memória gerenciada (CUDA): um ponteiro só… em cima do mesmo cano")
+        topo = self.topo("Memória gerenciada: um ponteiro só, o mesmo cano")
         cpu = self.caixa("CPU", CPU_C).shift(LEFT * 4.2 + UP * 0.9)
         gpu = self.caixa("GPU", GPU_C).shift(RIGHT * 4.2 + UP * 0.9)
         unica = self.caixa("um array: x", MEM_C, w=6.0, h=0.9).shift(DOWN * 0.6)
@@ -115,8 +115,8 @@ class DoisMundos(CursoScene):
         # ---- os três modelos lado a lado
         topo = self.topo("O hardware está mudando")
         def coluna(nome, exemplos, banda, desenho):
-            cab = self.texto(nome, 24).set_max_width(4.0)
-            ex = self.texto(exemplos, 18, MUTED).set_max_width(4.0)
+            cab = cabe(self.texto(nome, 24), 4.0)
+            ex = cabe(self.texto(exemplos, 18, MUTED), 4.0)
             bd = self.texto(banda, 20, MEM_C)
             return VGroup(cab, desenho, bd, ex).arrange(DOWN, buff=0.3)
 

@@ -11,3 +11,6 @@ videos/media/
 videos/.cache/
 videos/pilot_sheet.png
 .venv-videos/
+/build_*
+videos/mp4/
+hidroides_*.csv
