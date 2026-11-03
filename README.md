@@ -77,6 +77,11 @@ Clique nos botões no topo. Na Aula 2, escolha *Ambiente de execução → Alter
 ```bash
 git clone https://github.com/LucaswasTaken/Openhardware-hpc && cd Openhardware-hpc
 uv venv --python 3.12 && uv pip install -r requirements.txt
+
+ou
+
+pip install -r requirements.txt
+ 
 # GPU NVIDIA (opcional):
 uv pip install "cupy-cuda12x[ctk]" "numba-cuda[cu12]"
 uv run jupyter lab
