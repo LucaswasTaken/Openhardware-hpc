@@ -1,0 +1,62 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.628
+Por que uma placa de vídeo consegue acelerar um cálculo de engenharia?
+
+2
+00:00:05.700 --> 00:00:09.219
+Pense numa obra. A CPU é uma equipe de oito engenheiros
+
+3
+00:00:09.319 --> 00:00:14.879
+experientes: cada um resolve qualquer problema, rápido, tomando decisões diferentes. A
+
+4
+00:00:14.979 --> 00:00:18.302
+GPU é uma equipe de milhares de operários. Cada um é
+
+5
+00:00:18.402 --> 00:00:22.251
+mais lento e só sabe uma tarefa simples, mas todos trabalham
+
+6
+00:00:22.351 --> 00:00:24.752
+ao mesmo tempo, cada um no seu pedaço.
+
+7
+00:00:25.433 --> 00:00:29.517
+A GPU ajuda quando o problema tem muitos dados recebendo a mesma
+
+8
+00:00:29.617 --> 00:00:33.897
+conta: a tensão em um milhão de pontos de integração, a temperatura
+
+9
+00:00:33.997 --> 00:00:37.492
+em cada nó de uma malha, as amostras de um Monte Carlo.
+
+10
+00:00:37.592 --> 00:00:40.957
+Cada operário pega um ponto, e todos calculam juntos.
+
+11
+00:00:41.633 --> 00:00:45.804
+E atrapalha quando há poucos dados, quando cada item pede uma decisão
+
+12
+00:00:45.904 --> 00:00:49.889
+diferente, ou quando os dados precisam viajar até a placa para uma
+
+13
+00:00:49.989 --> 00:00:54.037
+única conta rápida. Esse último ponto é o assunto do próximo vídeo.
+
+14
+00:00:54.733 --> 00:00:59.657
+A GPU usada na aula tem 2048 núcleos e memória própria. A pergunta
+
+15
+00:00:59.757 --> 00:01:04.833
+para levar: o meu problema tem muitos dados recebendo a mesma conta?
+

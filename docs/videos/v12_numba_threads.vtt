@@ -1,0 +1,58 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.032
+Vamos resolver o exemplo da lista: a energia
+
+2
+00:00:03.132 --> 00:00:06.164
+de deformação de cinquenta milhões de molas.
+
+3
+00:00:07.233 --> 00:00:10.964
+A função serial é um laço que soma meio k delta ao quadrado.
+
+4
+00:00:11.064 --> 00:00:15.434
+Para o Numba, são três mudanças: o decorador njit com parallel igual a
+
+5
+00:00:15.534 --> 00:00:20.414
+true, trocar range por prange, e escolher quantas threads usar em cada medida.
+
+6
+00:00:20.514 --> 00:00:24.629
+A soma dentro do prange vira automaticamente uma soma em paralelo.
+
+7
+00:00:25.300 --> 00:00:30.371
+Com uma thread, 67 milissegundos. Com 12, 19. Um
+
+8
+00:00:30.471 --> 00:00:35.112
+speedup de 3,4 vezes, com eficiência de 29%.
+
+9
+00:00:35.800 --> 00:00:40.134
+Por que não doze vezes? Cada mola faz só três multiplicações, mas
+
+10
+00:00:40.234 --> 00:00:45.046
+precisa ler dezesseis bytes da memória. Com todas as threads, o programa
+
+11
+00:00:45.146 --> 00:00:49.685
+lê 41 gigabytes por segundo, perto do limite da memória do notebook.
+
+12
+00:00:49.785 --> 00:00:54.051
+As threads passam a maior parte do tempo esperando dados. Essa é
+
+13
+00:00:54.151 --> 00:00:58.826
+exatamente a análise que vai no relatório. E, mesmo assim, o resultado
+
+14
+00:00:58.926 --> 00:01:01.692
+é 667 vezes mais rápido que o Python puro.
+

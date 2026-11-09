@@ -1,130 +1,62 @@
 WEBVTT
 
 1
-00:00:00.000 --> 00:00:02.874
-Por muito tempo, CPU e GPU foram dois
+00:00:00.000 --> 00:00:05.252
+A viagem dos dados até a GPU custa caro. E se não houvesse viagem?
 
 2
-00:00:02.974 --> 00:00:06.332
-mundos separados. Será que isso ainda vale?
+00:00:06.333 --> 00:00:10.634
+No Colab, e na maioria dos computadores com placa de vídeo, CPU e
 
 3
-00:00:07.400 --> 00:00:10.919
-No modelo clássico, o da T4 do Colab e da maioria das
+00:00:10.734 --> 00:00:15.036
+GPU vivem em dois mundos: cada uma com a sua memória, ligadas por
 
 4
-00:00:11.019 --> 00:00:14.334
-placas de vídeo, a CPU tem a sua memória, a RAM, e
+00:00:15.136 --> 00:00:18.693
+um cabo. Os dados viajam de um lado para o outro, e na
 
 5
-00:00:14.434 --> 00:00:17.408
-a GPU tem a dela, a VRAM. Entre as duas há um
+00:00:18.793 --> 00:00:22.553
+aula essa viagem custou cerca de 7 vezes a própria conta.
 
 6
-00:00:17.508 --> 00:00:21.916
-barramento, o PCIe, bem mais estreito do que as próprias memórias.
+00:00:23.233 --> 00:00:27.547
+Em algumas máquinas novas, CPU e GPU usam a mesma memória. É
 
 7
-00:00:22.000 --> 00:00:26.511
-Para calcular na GPU, os dados precisam viajar: copiamos da RAM
+00:00:27.647 --> 00:00:31.815
+como ter o depósito dentro da obra: não há viagem. Isso já
 
 8
-00:00:26.611 --> 00:00:30.684
-para a VRAM, calculamos, e copiamos o resultado de volta.
+00:00:31.915 --> 00:00:36.744
+existe nos MacBooks com chip M, nos sistemas Grace Hopper da NVIDIA
 
 9
-00:00:30.766 --> 00:00:34.396
-Medimos isso na aula. Copiar cento e vinte e oito
+00:00:36.844 --> 00:00:41.085
+e no processador AMD MI300A, do supercomputador El Capitan.
 
 10
-00:00:34.496 --> 00:00:38.505
-megabytes levou 28 milissegundos; a conta em si, só 4.
+00:00:41.766 --> 00:00:44.486
+O que muda: acaba a viagem e o código fica
 
 11
-00:00:38.605 --> 00:00:41.778
-A viagem custa muito mais do que o cálculo.
+00:00:44.586 --> 00:00:47.842
+mais simples. O que não muda: a GPU continua sendo
 
 12
-00:00:42.966 --> 00:00:47.248
-O CUDA oferece a memória gerenciada: um único array, que a CPU
+00:00:47.942 --> 00:00:52.407
+milhares de operários fazendo a mesma conta. Ela continua precisando
 
 13
-00:00:47.348 --> 00:00:51.277
-e a GPU enxergam com o mesmo endereço. O código fica mais
+00:00:52.507 --> 00:00:55.898
+de muitos dados, e memória rápida continua mandando.
 
 14
-00:00:51.377 --> 00:00:55.730
-simples. Mas, numa GPU discreta, isso é uma ilusão de software.
+00:00:56.566 --> 00:01:00.772
+Na aula, com placa separada, vale a regra de ouro: leve os dados
 
 15
-00:00:55.800 --> 00:01:00.396
-Por baixo, as páginas de memória migram pelo mesmo PCIe quando a
-
-16
-00:01:00.496 --> 00:01:05.680
-GPU as toca. Na nossa medida, o primeiro kernel levou 146 milissegundos,
-
-17
-00:01:05.780 --> 00:01:10.156
-porque os dados tiveram que viajar. O segundo, com tudo já na
-
-18
-00:01:10.256 --> 00:01:13.532
-GPU, 5. O custo continua lá, só que escondido.
-
-19
-00:01:14.700 --> 00:01:18.692
-E o hardware está mudando. Ao lado da GPU discreta, surgiram
-
-20
-00:01:18.792 --> 00:01:22.103
-sistemas em que CPU e GPU são ligadas por um canal
-
-21
-00:01:22.203 --> 00:01:26.536
-quase tão largo quanto a memória, com endereços coerentes, como o
-
-22
-00:01:26.636 --> 00:01:30.629
-Grace Hopper da NVIDIA. E chips com uma única memória física
-
-23
-00:01:30.729 --> 00:01:34.108
-para os dois, como os processadores Apple M e o AMD
-
-24
-00:01:34.208 --> 00:01:39.224
-MI300A, do supercomputador El Capitan. Aqui, simplesmente não existe cópia.
-
-25
-00:01:40.400 --> 00:01:44.035
-Mas atenção ao que não muda. A GPU continua sendo milhares
-
-26
-00:01:44.135 --> 00:01:48.093
-de núcleos simples, que executam a mesma instrução em grupos de
-
-27
-00:01:48.193 --> 00:01:51.636
-trinta e dois. Ela só vale a pena com muito paralelismo
-
-28
-00:01:51.736 --> 00:01:55.694
-de dados. A largura de banda e a localidade continuam mandando.
-
-29
-00:01:55.794 --> 00:02:00.268
-E um laço sequencial continua sequencial, com ou sem memória unificada.
-
-30
-00:02:01.466 --> 00:02:05.092
-Então a pergunta mudou. Em vez de quanto custa copiar,
-
-31
-00:02:05.192 --> 00:02:08.887
-pergunte: onde o dado mora, e quem processa melhor esse
-
-32
-00:02:08.987 --> 00:02:11.854
-dado? Na aula, vamos medir isso na prática.
+00:01:00.872 --> 00:01:04.674
+uma vez. E em qualquer máquina, pense em onde o dado mora.
 

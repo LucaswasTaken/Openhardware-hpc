@@ -165,6 +165,37 @@ class CursoScene(VoiceoverScene):
     def fonte(self, s: str) -> Text:
         return self.texto(s, 18, MUTED).to_edge(DOWN, buff=0.25)
 
+    # ---- peças do vídeo-roteiro do professor (arquivos, células, slides)
+    def arvore(self, itens: list[tuple[int, str, bool]], fs: int = 24) -> VGroup:
+        """Árvore de arquivos: itens = [(nível, nome, destacar)]. Pastas terminam com '/'."""
+        mono = "Consolas" if os.name == "nt" else "DejaVu Sans Mono"
+        linhas = VGroup()
+        for nivel, nome, dest in itens:
+            prefixo = "   " * nivel + ("└─ " if nivel else "")
+            cor = MEM_C if dest else (BLUE_C if nome.endswith("/") else MUTED)
+            linhas.add(Text(prefixo + nome, font=mono, font_size=fs, color=cor,
+                            weight="BOLD" if dest else "NORMAL"))
+        return cabe(linhas.arrange(DOWN, aligned_edge=LEFT, buff=0.12))
+
+    def celula(self, n, fonte: str, largura: float = 11.0) -> VGroup:
+        """Célula de notebook: [n] + código."""
+        c = self.codigo(fonte, largura=largura - 1.0)
+        rot = Text(f"[{n}]", font="Consolas" if os.name == "nt" else "DejaVu Sans Mono", font_size=24, color=MUTED)
+        return cabe(VGroup(rot, c).arrange(RIGHT, aligned_edge=UP, buff=0.25), largura)
+
+    def slide_mini(self, num, titulo: str, itens: list[str], w: float = 7.2) -> VGroup:
+        """Miniatura de slide (16:9) com número, título e tópicos."""
+        h = w * 9 / 16
+        quadro = RoundedRectangle(width=w, height=h, corner_radius=0.08, color=WHITE, stroke_width=2,
+                                  fill_color="#f5f6f7", fill_opacity=1)
+        t = cabe(Text(titulo, font=FONT, weight="BOLD", font_size=26, color="#2f7d4f"), w - 0.6)
+        corpo = VGroup(*[cabe(Text("• " + i, font=FONT, font_size=20, color="#1d2127"), w - 0.8) for i in itens])
+        corpo.arrange(DOWN, aligned_edge=LEFT, buff=0.15)
+        VGroup(t, corpo).arrange(DOWN, aligned_edge=LEFT, buff=0.3).move_to(quadro).align_to(quadro, UP).shift(DOWN * 0.35)
+        VGroup(t, corpo).align_to(quadro, LEFT).shift(RIGHT * 0.35)
+        rot = Text(f"slide {num}", font=FONT, font_size=20, color=MUTED).next_to(quadro, DOWN, buff=0.12)
+        return VGroup(quadro, t, corpo, rot)
+
 
 from manim import ORIGIN, AnimationGroup, Code, GrowFromEdge, LaggedStart, Mobject  # noqa: E402
 

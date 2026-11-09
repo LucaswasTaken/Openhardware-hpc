@@ -1,62 +1,66 @@
 WEBVTT
 
 1
-00:00:00.000 --> 00:00:03.250
-Você escolheu um exercício e uma tecnologia.
+00:00:00.000 --> 00:00:03.245
+Você escolheu um exercício e um caminho, CPU
 
 2
-00:00:03.350 --> 00:00:06.068
-Como mostrar que acelerou de verdade?
+00:00:03.345 --> 00:00:06.668
+ou GPU. Como mostrar que acelerou de verdade?
 
 3
-00:00:07.166 --> 00:00:11.992
-São quatro passos. Primeiro, correção: um código rápido e errado não vale
+00:00:07.766 --> 00:00:12.342
+O relatório mede uma coisa só: escalabilidade forte. O problema fica do
 
 4
-00:00:12.092 --> 00:00:17.794
-nada; compare sempre com uma referência. Segundo, medida honesta: aqueça antes, repita
+00:00:12.442 --> 00:00:16.754
+mesmo tamanho, e você aumenta o número de trabalhadores. É como uma
 
 5
-00:00:17.894 --> 00:00:22.248
-e fique com o menor tempo, e na GPU, sincronize. Terceiro, speedup
+00:00:16.854 --> 00:00:21.035
+obra de área fixa: se um pedreiro leva doze dias, quatro levariam
 
 6
-00:00:22.348 --> 00:00:26.836
-e eficiência, variando o número de núcleos ou o tamanho do problema.
+00:00:21.135 --> 00:00:25.184
+três, se tudo se dividir bem. O speedup diz quantas vezes ficou
 
 7
-00:00:26.936 --> 00:00:29.602
-Quarto, a análise: o que limitou o ganho?
+00:00:25.284 --> 00:00:29.794
+mais rápido. A eficiência diz quanto do esforço extra foi aproveitado.
 
 8
-00:00:30.300 --> 00:00:34.840
-Dois gráficos são obrigatórios: o speedup em função do número de núcleos,
+00:00:30.466 --> 00:00:34.597
+São cinco passos. Cole a função serial, que já está pronta na
 
 9
-00:00:34.940 --> 00:00:38.972
-com a reta ideal para comparar, e a eficiência, que mostra quanto
+00:00:34.697 --> 00:00:38.896
+lista. Acelere com Numba, na CPU, ou CuPy, na GPU. Confira que
 
 10
-00:00:39.072 --> 00:00:43.422
-do hardware você aproveitou. O modelo de relatório do curso já desenha
+00:00:38.996 --> 00:00:42.849
+o resultado é o mesmo: rápido e errado vale zero. Meça; o
 
 11
-00:00:43.522 --> 00:00:46.664
-os dois: basta trocar a função de exemplo pela sua.
+00:00:42.949 --> 00:00:47.704
+modelo de relatório varia as threads e desenha os gráficos sozinho. E,
 
 12
-00:00:47.333 --> 00:00:51.525
-Na análise, responda: o problema é limitado pelo cálculo ou pela
+00:00:47.804 --> 00:00:50.478
+por fim, explique o que limitou o ganho.
 
 13
-00:00:51.625 --> 00:00:55.952
-memória? Quanto custou criar processos ou copiar dados para a GPU?
+00:00:51.166 --> 00:00:54.927
+Os gráficos: speedup em função do número de threads, com a
 
 14
-00:00:56.052 --> 00:01:00.043
-Qual a fração serial? E o resultado mudaria em outra máquina?
+00:00:55.027 --> 00:00:58.721
+reta ideal para comparar, e a eficiência. Estes são os do
 
 15
-00:01:00.143 --> 00:01:04.537
-Os próximos três vídeos mostram exemplos parecidos com os da lista.
+00:00:58.821 --> 00:01:02.981
+exemplo resolvido da lista. Na GPU, em vez desses gráficos, você
+
+16
+00:01:03.081 --> 00:01:06.642
+monta uma escada de versões, como mostra o vídeo treze.
 
