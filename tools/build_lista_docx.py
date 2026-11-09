@@ -31,38 +31,31 @@ CORRECOES = [
     ("CuPy", ["Joblib / Multiprocessing", ": paralelização na CPU com processos"]),
     ("Escalabilidade = ", ["Escalabilidade forte", ": mesmo tamanho de problema, variando o número de threads/processos "
                            "(na GPU: comparar com as versões de CPU)"]),
-    ("Weak scaling", ["Strong scaling: número de pontos fixo, variar processos"]),
 ]
-APAGAR = ["Multiprocessing: Paralelização tradicional", "Dask"]
-TROCAS = [("dos 5 Exercícios", "dos 8 Exercícios"), ("Produto Vetorial", "Produto Escalar"), ("momente", "momento"),
-          ("ponto dentor de", "ponto dentro de"), ("� Exercício 3", "🎲 Exercício 3")]
-# exercícios 6–8: o texto de especificação/requisitos/análise estava copiado do 5
-SECOES = {
-    "Exercício 6": ["Tamanhos: 1M, 10M e 20M elementos; comparar com np.sort",
-                    "Versão serial: np.sort ou um algoritmo próprio (ex.: merge sort)",
-                    "Paralelizar ordenando blocos (chunks) do array ao mesmo tempo",
-                    "Combinar os blocos ordenados (intercalação final)",
-                    "Medir throughput (elementos ordenados por segundo)",
-                    "Strong scaling: tamanho fixo, variar processos",
-                    "Custo da intercalação final (parte que não paraleliza)",
-                    "Comparar com np.sort"],
-    "Exercício 7": ["Pontos: 1M; polígono com 20, 200 e 2000 vértices",
-                    "Versão serial: algoritmo do raio (tiro), ponto a ponto",
-                    "Paralelizar dividindo os pontos em chunks",
-                    "Combinar os resultados (dentro/fora de cada ponto)",
-                    "Medir throughput (pontos por segundo)",
-                    "Strong scaling: número de pontos fixo, variar processos",
-                    "Efeito do número de vértices no speedup",
-                    "Validar com matplotlib.path.Path.contains_points"],
-    "Exercício 8": ["Pontos: 1M e 10M, aleatórios no plano",
-                    "Versão serial: Monotone Chain ou Quickhull",
-                    "Paralelizar calculando o fecho de cada chunk",
-                    "Combinar: calcular o fecho dos fechos",
-                    "Validar com scipy.spatial.ConvexHull",
-                    "Strong scaling: número de pontos fixo, variar processos",
-                    "Quantos pontos sobram após a 1ª etapa",
-                    "Custo da etapa final (serial)"],
+APAGAR = ["Multiprocessing: Paralelização tradicional", "Dask", "Nível de Dificuldade", "Boa sorte"]
+TROCAS = [("dos 5 Exercícios", "dos 8 Exercícios"), ("Produto Vetorial", "Produto Escalar"),
+          ("ponto dentor de", "ponto dentro de")]
+# Cada exercício fica só com: título, Aplicação (originais), o problema e o que paralelizar — o resto (tamanhos,
+# algoritmo, ferramentas, análise) fica a critério do estudante. Os textos de "Problema" vêm da lista original.
+EXERCICIOS = {
+    "Exercício 1": ("produto escalar de dois vetores: result = Σ(a[i] * b[i]).",
+                    "a soma dos produtos, dividindo os vetores entre os trabalhadores."),
+    "Exercício 2": ("multiplicação C = A × B de matrizes densas quadradas, pelo algoritmo de triplo loop: "
+                    "C[i][j] = Σ A[i][k] * B[k][j].",
+                    "o cálculo dos elementos de C (por linhas, colunas ou blocos)."),
+    "Exercício 3": ("calcular π usando pontos aleatórios: π ≈ 4 × (pontos dentro do círculo / total de pontos).",
+                    "a geração e a contagem dos pontos."),
+    "Exercício 4": ("calcular a soma de todos os elementos de um array grande e verificar se em algum momento há "
+                    "ganho em paralelizar em GPU.",
+                    "a soma (redução) dos elementos."),
+    "Exercício 5": ("encontrar todas as ocorrências de um valor em um array grande, retornando os índices.",
+                    "a busca, dividindo o array em partes, e combinar os resultados."),
+    "Exercício 6": ("ordenar um array grande.", "a ordenação."),
+    "Exercício 7": ("verificar quais pontos estão dentro de um polígono (algoritmo do tiro).",
+                    "o teste dos pontos."),
+    "Exercício 8": ("calcular o fecho convexo de um conjunto de pontos.", "o cálculo do fecho."),
 }
+EMOJI = re.compile("[\U0001F000-\U0001FAFF☀-➿⭐️‍�]")
 AVISO_ANEXO = " Veja o Anexo, ao final: passo a passo, escalabilidade forte e um exemplo resolvido."
 
 
@@ -77,6 +70,40 @@ def tem_lista(p):
     return pr is not None and pr.numPr is not None
 
 
+def apaga(p):
+    p._p.getparent().remove(p._p)
+
+
+def sem_emoji(doc):
+    for p in doc.paragraphs:
+        for r in p.runs:
+            if EMOJI.search(r.text):
+                r.text = EMOJI.sub("", r.text)
+        cheios = [r for r in p.runs if r.text]
+        if cheios:
+            cheios[0].text = cheios[0].text.lstrip()
+
+
+def simplifica_exercicios(doc):
+    for chave, (problema, paralelizar) in EXERCICIOS.items():
+        ps = doc.paragraphs
+        i = next(i for i, p in enumerate(ps) if chave in p.text and p.style.name.startswith("Heading 1"))
+        aplicacao = ps[i + 1]
+        assert aplicacao.text.startswith("Aplicação"), aplicacao.text
+        for p in ps[i + 2:]:
+            if p.style.name.startswith("Heading 1"):
+                break
+            if p.text.strip() or tem_lista(p):     # mantém só o parágrafo vazio com a linha separadora
+                apaga(p)
+        anterior = aplicacao._p
+        for rotulo, texto in (("Problema:", problema), ("O que paralelizar:", paralelizar)):
+            novo = copy.deepcopy(aplicacao._p)
+            anterior.addnext(novo)
+            anterior = novo
+            from docx.text.paragraph import Paragraph
+            textos(Paragraph(novo, aplicacao._parent), [rotulo, " " + texto[0].upper() + texto[1:]])
+
+
 def corrige(doc):
     ps = doc.paragraphs
     feitos = set()
@@ -85,27 +112,16 @@ def corrige(doc):
         feitos.add(ps.index(p))
         textos(p, novos)
     for inicio in APAGAR:
-        p = next(p for p in doc.paragraphs if p.text.startswith(inicio))
-        p._p.getparent().remove(p._p)
+        apaga(next(p for p in doc.paragraphs if p.text.startswith(inicio)))
+    sem_emoji(doc)
     for p in doc.paragraphs:
         for a, b in TROCAS:
             if a in p.text:
                 for r in p.runs:
-                    r.text = r.text.replace(a, b).replace("�", "🎲") if ("�" in a) else r.text.replace(a, b)
+                    r.text = r.text.replace(a, b)
         if p.text.startswith("Você deve escolher apenas UM"):
             p.runs[-1].text += AVISO_ANEXO
-    ps = doc.paragraphs
-    for chave, novos in SECOES.items():
-        i = next(i for i, p in enumerate(ps) if chave in p.text and p.style.name.startswith("Heading 1"))
-        itens = []
-        for p in ps[i + 1:]:
-            if p.style.name.startswith("Heading 1"):
-                break
-            if tem_lista(p):
-                itens.append(p)
-        assert len(itens) == len(novos), (chave, len(itens))
-        for p, t in zip(itens, novos):
-            textos(p, [t])
+    simplifica_exercicios(doc)
 
 
 # ---------------------------------------------------------------- anexo (markdown simples → estilos do documento)

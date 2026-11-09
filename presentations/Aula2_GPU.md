@@ -131,7 +131,7 @@ def simula(T, passos):                   # a MESMA função na CPU e na GPU
 
 ![w:780](figures/calor.png)
 
-<span class="pequeno">Malha pequena: a GPU não ganha. Malha grande: ganha, porque os dados ficam parados na GPU por 300 passos. Numba na CPU é adversário forte — meça no seu hardware.</span>
+<span class="pequeno">Malha pequena: a GPU não ganha. Neste notebook (12 núcleos + GPU de notebook) o Numba ganhou em todos os tamanhos; no Colab (2 núcleos + T4) a GPU passa à frente nas malhas grandes, porque os dados ficam parados nela por 300 passos. Meça no seu hardware.</span>
 
 ---
 
@@ -148,10 +148,10 @@ def simula(T, passos):                   # a MESMA função na CPU e na GPU
 > *"Tenho esta função [cole a serial]. Reescreva com CuPy, mantendo os dados na GPU. Mostre como medir (aquecer e sincronizar) e como conferir com a original."*
 
 Antes de acreditar, confira:
-1. ✅ o resultado bate com a serial
-2. ✅ aqueceu antes de medir
-3. ✅ sincronizou antes de parar o relógio
-4. ✅ sabe se a viagem RAM → GPU está no tempo
+1. o resultado bate com a serial
+2. aqueceu antes de medir
+3. sincronizou antes de parar o relógio
+4. sabe se a viagem RAM → GPU está no tempo
 
 ---
 
@@ -165,7 +165,7 @@ Antes de acreditar, confira:
 
 | Ferramenta | Quando |
 |---|---|
-| **CuPy** ⭐ | `np` → `cp`: arrays, álgebra linear, FFT |
+| **CuPy** (a principal) | `np` → `cp`: arrays, álgebra linear, FFT |
 | Numba-CUDA | sua própria função por operário (kernel) |
 | PyTorch / JAX | otimização, derivadas automáticas |
 | RAPIDS cuDF | tabelas grandes (pandas na GPU) |
@@ -176,6 +176,6 @@ Antes de acreditar, confira:
 
 - `exercicios/lista.md` — escolha **um** exercício e **um** caminho: **CPU com Numba** (recomendado) ou **GPU com CuPy**
 - Só **escalabilidade forte**: CPU varia as threads; GPU monta a escada
-- `exercicios/modelo_relatorio.ipynb` — mede, confere e desenha; troque só as células ✏️
+- `exercicios/modelo_relatorio.ipynb` — mede, confere e desenha; troque só as células marcadas
 - `exercicios/INSTALACAO.md` — Colab ou seu computador
 - Vídeos 11–14: relatório, exemplo Numba, exemplo CuPy, IA

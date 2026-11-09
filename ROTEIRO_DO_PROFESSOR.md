@@ -4,7 +4,7 @@ Guia prático para dar o curso **Computação de Alto Desempenho em Python para 
 
 Materiais:
 - notebooks: [`notebooks/Aula1_CPU.ipynb`](notebooks/Aula1_CPU.ipynb) e [`notebooks/Aula2_GPU.ipynb`](notebooks/Aula2_GPU.ipynb) (abrem no Colab pelos botões do README);
-- slides (Marp): [`presentations/`](presentations/);
+- slides: no navegador ([Aula 1](https://lucaswastaken.github.io/Openhardware-hpc/slides/Aula1_CPU.html), [Aula 2](https://lucaswastaken.github.io/Openhardware-hpc/slides/Aula2_GPU.html)) ou em PDF em [`presentations/`](presentations/) — veja [como apresentar](presentations/README.md);
 - vídeos curtos (~1 min): [lucaswastaken.github.io/Openhardware-hpc](https://lucaswastaken.github.io/Openhardware-hpc/);
 - exercícios: [`exercicios/lista.md`](exercicios/lista.md), [rubrica](exercicios/lista.md#rubrica-10-pontos), [modelo de relatório](exercicios/modelo_relatorio.ipynb) e [guia de instalação](exercicios/INSTALACAO.md);
 - **vídeo-roteiro da Aula 2** (só para o professor): `python videos/professor.py` gera `videos/professor/aula2_professor.mp4`.
@@ -115,7 +115,7 @@ Materiais:
 | 3:15–3:30 | 6. Quando usar GPU + outras ferramentas | 14–15 | 11 | seção 6 |
 
 ### Antes de começar (10 min antes)
-- [ ] Abra no projetor, em abas: o **notebook** (`notebooks/Aula2_GPU.ipynb`, botão Colab do README), os **slides** (`presentations/Aula2_GPU.md`, Marp), a **página dos vídeos** e a **lista** (`exercicios/lista.md`).
+- [ ] Abra no projetor, em abas: o **notebook** (`notebooks/Aula2_GPU.ipynb`, botão Colab do README), os **slides** ([slides/Aula2_GPU.html](https://lucaswastaken.github.io/Openhardware-hpc/slides/Aula2_GPU.html): **F** tela cheia, **P** modo apresentador; sem internet: `presentations/Aula2_GPU.pdf`), a **página dos vídeos** e a **lista** (`exercicios/lista.md`).
 - [ ] No Colab: *Ambiente de execução → Alterar o tipo → T4 GPU*. Rode a 1ª célula: deve dizer `GPU: True`.
 - [ ] Peça à turma para fazer o mesmo **logo na chegada** (a fila de GPU pode levar minutos). Quem não conseguir: segue em dupla ou pelo notebook publicado, que já vem executado.
 - [ ] Plano B: se o Colab negar GPU para todos, projete o notebook publicado (já tem as saídas) e rode só as células de CPU.

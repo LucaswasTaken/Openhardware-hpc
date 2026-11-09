@@ -112,7 +112,7 @@ def main() -> None:
 <header>
   <h1>Computação de Alto Desempenho em Python</h1>
   <p>Vídeos curtos do curso para Engenharia Civil — 2 aulas de 3h30 (CPU e GPU). Os números nos gráficos foram medidos nos próprios notebooks.</p>
-  <p><a href="{REPO}">repositório</a> · <a href="{COLAB}/notebooks/Aula1_CPU.ipynb">Aula 1 no Colab</a> · <a href="{COLAB}/notebooks/Aula2_GPU.ipynb">Aula 2 no Colab</a></p>
+  <p><a href="{REPO}">repositório</a> · <a href="{COLAB}/notebooks/Aula1_CPU.ipynb">Aula 1 no Colab</a> · <a href="{COLAB}/notebooks/Aula2_GPU.ipynb">Aula 2 no Colab</a> · slides: <a href="slides/Aula1_CPU.html">Aula 1</a>, <a href="slides/Aula2_GPU.html">Aula 2</a></p>
 </header>
 <main>{''.join(blocos)}
 </main>
