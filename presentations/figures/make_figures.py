@@ -123,7 +123,7 @@ def dois_mundos():
     caixa(a, .3, 3.3, 3.6, 1.8, "CPU", AZUL); caixa(a, .3, .5, 3.6, 1.8, "RAM", "#cfe6f2")
     caixa(a, 6.1, 3.3, 3.6, 1.8, "GPU", VERDE); caixa(a, 6.1, .5, 3.6, 1.8, "VRAM", "#d7ecd9")
     a.add_patch(FancyArrowPatch((4.0, 1.4), (6.0, 1.4), arrowstyle="<|-|>", mutation_scale=18, lw=2.5, color=VERMELHO))
-    a.text(5.0, 2.0, "PCIe 🚚\nviagem cara", ha="center", fontsize=10, color=VERMELHO)
+    a.text(5.0, 2.0, "PCIe\nviagem cara", ha="center", fontsize=10, color=VERMELHO)
     b = axs[1]; b.set_title("Memória unificada (Apple M, Grace Hopper, MI300A)", fontsize=12)
     caixa(b, .6, 3.3, 3.8, 1.8, "CPU", AZUL); caixa(b, 5.6, 3.3, 3.8, 1.8, "GPU", VERDE)
     caixa(b, .6, .5, 8.8, 1.8, "uma memória só — sem viagem", "#efe3b8")
@@ -140,7 +140,7 @@ def aula2():
     cc = d.get("copia_calculo", {})
     if cc:
         fig, ax = plt.subplots(figsize=(7, 2.9))
-        barras(ax, ["🚚 RAM → GPU", "conta leve", "conta pesada", "🚚 GPU → RAM"],
+        barras(ax, ["viagem RAM → GPU", "conta leve", "conta pesada", "viagem GPU → RAM"],
                [cc["ida_ms"], cc["leve_ms"], cc["pesada_ms"], cc["volta_ms"]], [VERMELHO, VERDE, AZUL, VERMELHO], "{:.1f} ms")
         ax.set(xlabel="milissegundos", title=f"{cc['mb']:.0f} MB: viagem × conta — {gpu}")
         salva(fig, "copia_calculo.png")

@@ -6,7 +6,8 @@ Materiais:
 - notebooks: [`notebooks/Aula1_CPU.ipynb`](notebooks/Aula1_CPU.ipynb) e [`notebooks/Aula2_GPU.ipynb`](notebooks/Aula2_GPU.ipynb) (abrem no Colab pelos botões do README);
 - slides (Marp): [`presentations/`](presentations/);
 - vídeos curtos (~1 min): [lucaswastaken.github.io/Openhardware-hpc](https://lucaswastaken.github.io/Openhardware-hpc/);
-- exercícios: [`exercicios/lista.md`](exercicios/lista.md), [rubrica](exercicios/lista.md#rubrica-10-pontos) e [modelo de relatório](exercicios/modelo_relatorio.ipynb).
+- exercícios: [`exercicios/lista.md`](exercicios/lista.md), [rubrica](exercicios/lista.md#rubrica-10-pontos), [modelo de relatório](exercicios/modelo_relatorio.ipynb) e [guia de instalação](exercicios/INSTALACAO.md);
+- **vídeo-roteiro da Aula 2** (só para o professor): `python videos/professor.py` gera `videos/professor/aula2_professor.mp4`.
 
 ---
 
@@ -96,65 +97,90 @@ Materiais:
 
 ---
 
-## Aula 2 — GPU (3h30)
 
-| Tempo | Bloco | Material |
-|---|---|---|
-| 0:00–0:25 | 1. CPU × GPU | slides 1–4 · vídeo 07 · seção 1 |
-| 0:25–0:50 | 2. CPU e GPU ainda são mundos separados? | slides 5–7 · vídeo 08b · seção 2 |
-| 0:50–1:05 | 3. CuPy e como medir direito | slides 8–9 · vídeo 08 · seção 3 |
-| 1:05–1:45 | 4. Kernels | slide 10 · vídeo 09 · seção 4 |
-| 1:45–2:00 | ☕ Intervalo | |
-| 2:00–3:00 | 5. Projeto: equação do calor | slides 11–12 · vídeo 10 · seção 5 |
-| 3:00–3:30 | 6. Quando usar GPU? Exercícios | slides 13–14 · seção 6 |
+## Aula 2 — GPU na prática (3h30)
 
-**Antes de começar:** peça que todos troquem o ambiente para **T4 GPU** e rodem a célula de preparação — a fila de GPU do Colab pode levar alguns minutos. Quem não conseguir GPU acompanha pelo notebook publicado (com saídas) ou em dupla.
+**Ideia da aula, em uma frase:** *a GPU são milhares de operários fazendo a mesma conta; ela só ganha quando há muitos dados e quando os dados ficam lá.* A ferramenta é uma só, o **CuPy** (`np` → `cp`). O resto (kernels, memória gerenciada, PyTorch…) fica no apêndice ou só é citado.
 
-### 0:00–0:25 · 1. CPU × GPU
-1. (8 min) Tabela CPU × GPU; analogia: 8 engenheiros sêniores × obra com 2 500 operários.
-2. (7 min) Warps e divergência: peça a 8 alunos que "executem a mesma instrução" levantando a mão; depois um `if` divide o grupo — metade espera. (Funciona muito bem.)
-3. (10 min) Célula das propriedades da GPU: núcleos, memória, banda teórica.
+**Público:** engenheiros que não programam e que vão pedir ajuda à IA. Não ensine sintaxe: mostre **o que observar** em cada resultado. Cada célula do notebook já traz "▶ O que esta célula faz / 👀 O que observar". Leia essa caixa em voz alta e rode.
 
-### 0:25–0:50 · 2. CPU e GPU ainda são mundos separados?
-**Objetivo:** entender memória unificada sem cair no marketing — a pergunta passa a ser *onde o dado mora e quem o processa melhor*.
-1. (5 min) Comece com o **vídeo 08b** (2 min) — ele apresenta os três modelos de hardware.
-2. (5 min) Slide dos três modelos: GPU discreta (T4), coerente com link rápido (Grace Hopper/Blackwell, DGX Spark), memória física única (Apple M, MI300A do El Capitan, Ryzen AI Max). Pergunte: "quem aqui tem Mac com chip M?" — ele já usa memória unificada.
-3. (10 min) Demo: cópia explícita × memória gerenciada × CPU tocando os dados × prefetch. Leitura esperada: 1º kernel gerenciado lento (migração), 2º rápido, toque da CPU traz tudo de volta, `prefetch` recupera.
-4. (5 min) O que **não** muda: paralelismo de dados, banda, localidade. Frase final no quadro.
+| Tempo | Bloco | Slides | Vídeo | Notebook |
+|---|---|---|---|---|
+| 0:00–0:20 | 1. Por que GPU? | 1–3 | 07 | seção 1 |
+| 0:20–0:50 | 2. Dois mundos: RAM e VRAM | 4–6 | 08, 08b | seção 2 |
+| 0:50–1:30 | 3. CuPy em 3 passos | 7–9 | 09 | seção 3 |
+| 1:30–1:45 | ☕ Intervalo | — | deixe o 10 tocando | — |
+| 1:45–2:45 | 4. Projeto: laje em incêndio | 10–11 | 10 | seção 4 |
+| 2:45–3:15 | 5. O seu exercício na GPU | 12–13 | 13, 14 | seção 5 |
+| 3:15–3:30 | 6. Quando usar GPU + outras ferramentas | 14–15 | 11 | seção 6 |
 
-**Atenção:** no Colab (Linux) há migração sob demanda e `prefetch`; em Windows local, não — os números mudam, e isso é parte da lição.
+### Antes de começar (10 min antes)
+- [ ] Abra no projetor, em abas: o **notebook** (`notebooks/Aula2_GPU.ipynb`, botão Colab do README), os **slides** (`presentations/Aula2_GPU.md`, Marp), a **página dos vídeos** e a **lista** (`exercicios/lista.md`).
+- [ ] No Colab: *Ambiente de execução → Alterar o tipo → T4 GPU*. Rode a 1ª célula: deve dizer `GPU: True`.
+- [ ] Peça à turma para fazer o mesmo **logo na chegada** (a fila de GPU pode levar minutos). Quem não conseguir: segue em dupla ou pelo notebook publicado, que já vem executado.
+- [ ] Plano B: se o Colab negar GPU para todos, projete o notebook publicado (já tem as saídas) e rode só as células de CPU.
 
-### 0:50–1:05 · 3. CuPy e como medir direito
-1. (5 min) As três regras: aquecer, sincronizar, separar transferência. Mostre o que acontece **sem** sincronizar (tempo absurdo de rápido).
-2. (5 min) Soma de vetores: GPU vence só na conta e perde com as cópias.
-3. (5 min) Matmul: GFLOP/s, `float32` × `float64`. Pergunte: "quais problemas de vocês aceitam `float32`?".
+### 0:00–0:20 · 1. Por que GPU? Milhares de operários
+**Mensagem:** CPU = 8 engenheiros experientes; GPU = 2 500 operários que fazem **a mesma tarefa ao mesmo tempo**.
+1. (3 min) Vídeo 07, ou conte a analogia no slide 3.
+2. (5 min) Pergunte: "quais contas do trabalho de vocês são *a mesma conta em milhões de dados*?" Anote 2–3 respostas (tensão em pontos de integração, nós de malha, amostras de Monte Carlo) e volte a elas no bloco 6.
+3. (5 min) Seção 1 do notebook: rode a célula da GPU. **Esperado no Colab:** Tesla T4, 2 560 núcleos, ~15 GB, contra 2 núcleos de CPU.
+4. (5 min) Pergunta-armadilha: "então a GPU é 1 000× mais rápida?" Não: cada operário é lento, e eles precisam de material (dados). É o gancho para o bloco 2.
 
-### 1:05–1:45 · 4. Kernels
-1. (10 min) Grid, block, thread no quadro (ou vídeo 09). Índice global: bloco 2, thread 3 → i = 19.
-2. (10 min) `ElementwiseKernel` de von Mises: 1 passada na memória × expressão com temporários.
-3. (15 min) Monte Carlo com Numba-CUDA: leia o kernel linha a linha; o `if i < saida.size`; gerador por thread.
-4. (5 min) Teste rápido.
+### 0:20–0:50 · 2. Dois mundos: a memória do computador e a da GPU
+**Mensagem:** **leve os dados uma vez.** A viagem RAM → GPU costuma custar mais que a conta.
+1. (5 min) Slide 4 (diagrama). Analogia: o depósito do outro lado da cidade, e o caminhão é o cabo PCIe.
+2. (10 min) Seção 2, célula da viagem × conta. **Peça palpites antes de rodar:** "o que demora mais, levar 400 MB ou multiplicar 50 milhões de números?" **Esperado (T4, aproximado):** ida ~30–40 ms, conta leve ~2–4 ms, conta pesada ~10–20 ms, volta ~30–40 ms. A ida custa ~10× a conta leve.
+3. (10 min) Vídeo 08b + slide 6 (memória unificada). Pergunte: "quem tem Mac com chip M?" Esse aluno já usa memória unificada. Explique o que **não** muda: continua precisando de muitos dados com a mesma conta.
+4. (5 min) Teste rápido (2 perguntas no notebook). Resposta da 2ª: com 10 000 passos, a viagem é paga uma vez só e a GPU compensa.
 
-**Se atrasar:** mostre o von Mises só rodando, sem detalhar a sintaxe do kernel em C.
+**Se atrasar:** passe o 08b para casa e fique só com o slide 6.
 
-### 2:00–3:00 · 5. Projeto: equação do calor numa laje
-**Objetivo:** levar um problema de engenharia do Python puro à GPU e interpretar escalabilidade.
-1. (10 min) Física e discretização: média dos vizinhos, estabilidade $r \le 0{,}25$. Mostre o vídeo 10 se a turma estiver cansada.
-2. (10 min) Leia a função `simula` (Array API): **o mesmo código** roda em NumPy e CuPy.
-3. (5 min) Kernel 2D com Numba-CUDA (grade 16×16).
-4. (20 min) Rode a comparação por tamanho de malha (~1–2 min no Colab). Enquanto roda, peça palpites: "a partir de que malha a GPU ganha?". Leia o gráfico: pequena → GPU não ganha; grande → dispara; kernel próprio > fatias.
-5. (10 min) Mapa de temperatura da laje e discussão de engenharia (isoterma de 500 °C e armadura, por exemplo). **Para casa:** convecção na face superior ou $r > 0{,}25$.
-6. (5 min) Fecho: problema limitado por memória → ganha quem tem mais banda.
+### 0:50–1:30 · 3. CuPy em 3 passos
+**Mensagem:** **Leve → Calcule (troque `np` por `cp`) → Traga.** E para medir: aqueça e sincronize.
+1. (5 min) Vídeo 09 ou slide 7. Escreva no quadro os 3 passos, que vão ficar lá até o fim da aula.
+2. (10 min) Von Mises: mostre que a função é **a mesma** para CPU e GPU (`cp.get_array_module`). **Esperado:** GPU 20–60× mais rápida que o NumPy, com os dados já na GPU. Leia em voz alta o prompt "💬 Peça à IA" e incentive a turma a usá-lo.
+3. (10 min) "O erro nº 1": rode a célula sem sincronizar. O tempo sai absurdamente pequeno. Frase para o quadro: **"resultado de GPU bom demais? pergunte se sincronizou."**
+4. (10 min) Matrizes 4096×4096. **Esperado (T4, aproximado):** CPU float64 ~50–100 GFLOP/s; GPU float64 ~200–250; GPU float32 ~4 000. Pergunte: "quais cálculos de vocês aceitam 7 dígitos?"
+5. (5 min) Teste rápido.
 
-### 3:00–3:30 · 6. Quando usar GPU? Exercícios
-1. (10 min) Checklist em 5 perguntas; aplique a 2–3 problemas que a turma citou no começo da Aula 1.
-2. (10 min) Exercícios: tire dúvidas de escolha; mostre os vídeos 12–14 (exemplos **parecidos**, não iguais à lista).
-3. (10 min) Encerramento: o que levar — medir, encontrar o gargalo, escolher a ferramenta.
+**Se atrasar:** pule as matrizes (o slide 9 mostra o resultado).
+
+### 1:45–2:45 · 4. Projeto: laje em incêndio
+**Mensagem:** a GPU ganha quando **o problema é grande** e **os dados ficam lá** por muitos passos. E o Numba na CPU é um adversário sério.
+1. (10 min) O problema (slide 10): face inferior a 600 °C, "cada ponto vira a média dos vizinhos". Desenhe a cruz de 5 pontos no quadro. **Não** precisa de equação diferencial.
+2. (10 min) Leia a função `simula` com a turma: ela não sabe onde está (CPU ou GPU); quem decide é o array. Rode a célula: 3 ✓.
+3. (20 min) A corrida por tamanho de malha (1–2 min no Colab). **Enquanto roda, peça palpites:** "a partir de que malha a GPU ganha?" **Esperado (Colab):** em 128² a GPU empata ou perde; a partir de ~512² ela passa à frente; em 2048² ganha com folga do Numba de 2 núcleos. Num notebook com 12+ núcleos e GPU pequena, o Numba chega perto, e isso também é uma lição.
+4. (10 min) Mapa da laje: onde está a isoterma de 500 °C? Com cobrimento de 2,5 cm, a armadura passou de 500 °C? É a discussão de engenharia que o cálculo rápido permite.
+5. (10 min) Folga, perguntas, ou o "para casa" (`R = 0.3` → instabilidade).
+
+### 2:45–3:15 · 5. O seu exercício na GPU
+**Mensagem:** na GPU não há "número de threads" para variar. Monte a **escada**: o mesmo problema em cada versão.
+1. (5 min) Abra `exercicios/lista.md` no projetor. Mostre que a escolha é **CPU com Numba (recomendado) ou GPU com CuPy** e que o **exemplo resolvido** é o mesmo da célula a seguir.
+2. (10 min) Rode a escada (seção 5). **Leitura:** contando a viagem RAM → GPU, a GPU **perde** para o Numba, porque a conta é leve e feita uma vez só. Com o dado já lá, ela compete. É a regra de ouro outra vez.
+3. (10 min) Vídeo 14 e "Usando IA". Mostre o prompt e as **4 verificações**. Frase: "a IA escreve; vocês conferem".
+4. (5 min) Abra o **modelo de relatório**: mostre as células ✏️ e que o resto é automático. Mostre `exercicios/INSTALACAO.md` para quem quer rodar no próprio computador.
+
+### 3:15–3:30 · 6. Quando usar GPU + outras ferramentas
+1. (8 min) Checklist de 5 perguntas (slide 14). Aplique aos 2–3 problemas anotados no bloco 1.
+2. (4 min) Tabela de ferramentas: CuPy ⭐ resolve quase tudo; Numba-CUDA, PyTorch/JAX, RAPIDS e MLX são "para saber que existem". O apêndice do notebook tem kernel e memória gerenciada para os curiosos.
+3. (3 min) Prazo da lista e rubrica. Encerramento: **medir, conferir, achar o gargalo.**
+
+### Perguntas que a turma costuma fazer
+- *"Meu notebook não tem placa NVIDIA, posso fazer o caminho GPU?"* Sim, no Colab (INSTALACAO.md, parte 1).
+- *"O Colab disse que acabou a cota de GPU."* Faça o caminho CPU com Numba (é o recomendado) ou tente no dia seguinte.
+- *"A IA me deu um código CuPy 1 000× mais rápido."* Quase sempre faltou sincronizar. Rode a conferência.
+- *"Por que a GPU perdeu no meu exercício?"* Provavelmente a conta é leve e a viagem está no tempo. Isso é uma **ótima** análise para o relatório.
+- *"Tenho Mac M1/M2…"* O CuPy não roda, mas o caminho CPU com Numba roda muito bem. Quem quiser explorar a GPU do Mac pode usar o Apple MLX (fora da avaliação).
 
 ---
 
 ## Depois das aulas
 
-- **Prazo sugerido** do relatório: 2 semanas. Corrija com a [rubrica](exercicios/lista.md#rubrica-10-pontos).
-- **Erros comuns nos relatórios:** medir sem aquecer; esquecer de sincronizar a GPU; comparar com Python puro e não com NumPy; speedup "superlinear" por cache sem explicação; usar a mesma semente em todos os processos.
-- **Atualizar o curso:** edite `tools/build_aula1.py`/`build_aula2.py`, rode `python tools/run_nb.py notebooks/…`, e regere figuras e vídeos. A CI do GitHub executa os notebooks em CPU a cada mudança.
+- **Prazo** da lista: 2 semanas. Corrija com a [rubrica](exercicios/lista.md#rubrica-10-pontos).
+- **Erros comuns nos relatórios:** não conferir o resultado com a função serial; medir sem aquecer; esquecer de sincronizar a GPU; não dizer se a viagem RAM → GPU está no tempo; não dizer o que a IA fez.
+- **Atualizar o curso:**
+  - Edite `tools/build_aula2.py`, `tools/build_modelo.py` e `exercicios/lista.md`.
+  - Rode `python tools/run_nb.py notebooks/Aula2_GPU.ipynb` e `python tools/build_lista_docx.py`.
+  - Regere figuras e vídeos.
+  - A CI do GitHub executa os notebooks em CPU a cada mudança.

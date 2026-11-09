@@ -165,7 +165,7 @@ t_leve  = cronometro(lambda: 2.0 * x_gpu + 1.0)                          # conta
 t_pesada = cronometro(lambda: cp.sin(x_gpu) * cp.exp(-x_gpu) + cp.cos(3 * x_gpu) ** 2)  # conta pesada
 t_volta = cronometro(lambda: cp.asnumpy(x_gpu))                          # cp.asnumpy: traz de volta
 
-etapas = {"🚚 RAM → GPU": t_ida, "conta leve": t_leve, "conta pesada": t_pesada, "🚚 GPU → RAM": t_volta}
+etapas = {"viagem RAM → GPU": t_ida, "conta leve": t_leve, "conta pesada": t_pesada, "viagem GPU → RAM": t_volta}
 for k, v in etapas.items():
     print(f"{k:>14}: {v*1e3:7.1f} ms")
 print(f"\nA viagem de ida custa {t_ida / t_leve:.0f}× a conta leve.")
