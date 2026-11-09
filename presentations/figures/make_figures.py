@@ -109,58 +109,71 @@ def aula1():
         salva(fig, "numba_trelica.png")
 
 
+def dois_mundos():
+    """Diagrama (não depende de medidas): GPU separada × memória unificada."""
+    from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+
+    fig, axs = plt.subplots(1, 2, figsize=(10, 3.6))
+    def caixa(ax, x, y, w, h, txt, cor):
+        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.02", fc=cor, ec="k", lw=1.2, alpha=.9))
+        ax.text(x + w / 2, y + h / 2, txt, ha="center", va="center", fontsize=11)
+    for ax in axs:
+        ax.set(xlim=(0, 10), ylim=(0, 6)); ax.axis("off")
+    a = axs[0]; a.set_title("GPU separada (Colab, placas GeForce/RTX)", fontsize=12)
+    caixa(a, .3, 3.3, 3.6, 1.8, "CPU", AZUL); caixa(a, .3, .5, 3.6, 1.8, "RAM", "#cfe6f2")
+    caixa(a, 6.1, 3.3, 3.6, 1.8, "GPU", VERDE); caixa(a, 6.1, .5, 3.6, 1.8, "VRAM", "#d7ecd9")
+    a.add_patch(FancyArrowPatch((4.0, 1.4), (6.0, 1.4), arrowstyle="<|-|>", mutation_scale=18, lw=2.5, color=VERMELHO))
+    a.text(5.0, 2.0, "PCIe 🚚\nviagem cara", ha="center", fontsize=10, color=VERMELHO)
+    b = axs[1]; b.set_title("Memória unificada (Apple M, Grace Hopper, MI300A)", fontsize=12)
+    caixa(b, .6, 3.3, 3.8, 1.8, "CPU", AZUL); caixa(b, 5.6, 3.3, 3.8, 1.8, "GPU", VERDE)
+    caixa(b, .6, .5, 8.8, 1.8, "uma memória só — sem viagem", "#efe3b8")
+    salva(fig, "dois_mundos.png")
+
+
 def aula2():
+    dois_mundos()
     d, quem = carrega(2)
     if not d:
         return
     gpu = d.get("gpu", {}).get("nome", "GPU")
-    mu = d.get("memoria_unificada", {})
-    if mu:
-        fig, ax = plt.subplots(figsize=(7.5, 3.6))
-        c, g = mu["copia_ms"], mu["gerenciada_ms"]
-        rot = list(c) + list(g)
-        barras(ax, rot, list(c.values()) + list(g.values()),
-               [VERMELHO, VERDE, VERMELHO] + [VERMELHO, VERDE, AMARELO, VERMELHO], "{:.0f} ms", log=True)
-        ax.set(xlabel=f"ms (log) · {gpu} · {mu['mib']:.0f} MiB", title="Cópia explícita × memória gerenciada")
-        salva(fig, "memoria_unificada.png")
 
-    sv = d.get("soma_vetores", {})
-    if sv:
-        fig, ax = plt.subplots(figsize=(7, 2.8))
-        barras(ax, ["CPU (NumPy)", "GPU, só a conta", "GPU, com as cópias"],
-               [sv["cpu_ms"], sv["gpu_ms"], sv["gpu_com_copias_ms"]], [AZUL, VERDE, VERMELHO], "{:.1f} ms")
-        ax.set(xlabel="ms", title=f"Soma de 20 M floats — {gpu}")
-        salva(fig, "transferencias.png")
+    cc = d.get("copia_calculo", {})
+    if cc:
+        fig, ax = plt.subplots(figsize=(7, 2.9))
+        barras(ax, ["🚚 RAM → GPU", "conta leve", "conta pesada", "🚚 GPU → RAM"],
+               [cc["ida_ms"], cc["leve_ms"], cc["pesada_ms"], cc["volta_ms"]], [VERMELHO, VERDE, AZUL, VERMELHO], "{:.1f} ms")
+        ax.set(xlabel="milissegundos", title=f"{cc['mb']:.0f} MB: viagem × conta — {gpu}")
+        salva(fig, "copia_calculo.png")
 
-    mm = d.get("matmul", {}).get("linhas", [])
+    mm = d.get("matmul", {}).get("tempos_s", {})
     if mm:
-        fig, ax = plt.subplots(figsize=(7, 4))
-        ns = sorted({l["n"] for l in mm})
-        cpu = [2 * n**3 / next(l["cpu_s"] for l in mm if l["n"] == n) / 1e9 for n in ns]
-        for tipo, cor in (("float32", VERDE), ("float64", VERMELHO)):
-            ax.plot(ns, [2 * n**3 / next(l["gpu_s"] for l in mm if l["n"] == n and l["tipo"] == tipo) / 1e9 for n in ns],
-                    "o-", color=cor, lw=2, label=f"GPU {tipo}")
-        ax.plot(ns, cpu, "s--", color=AZUL, lw=2, label="CPU float32")
-        ax.set(xscale="log", yscale="log", xlabel="n (matriz n×n)", ylabel="GFLOP/s", title=f"Multiplicação de matrizes — {gpu}")
-        ax.set_xticks(ns, [str(n) for n in ns])
-        ax.legend()
+        n = d["matmul"]["n"]
+        fig, ax = plt.subplots(figsize=(7, 2.6))
+        barras(ax, list(mm), [2 * n**3 / t / 1e9 for t in mm.values()], [AZUL, VERMELHO, VERDE][:len(mm)], "{:.0f} GFLOP/s")
+        ax.set(xlabel="GFLOP/s (bilhões de contas por segundo)", title=f"Matrizes {n}×{n} — {gpu}")
         salva(fig, "matmul.png")
 
     cal = d.get("calor", {}).get("tempos", {})
     if cal:
         fig, ax = plt.subplots(figsize=(7, 4))
-        cores = {"Python puro": CINZA, "NumPy": AZUL, "Numba paralelo": AMARELO, "CuPy (GPU)": VERMELHO,
-                 "Numba-CUDA kernel (GPU)": VERDE}
-        passos = d["calor"]["passos"]
-        for k, v in cal.items():
+        cores = [AZUL, AMARELO, VERDE]
+        for (k, v), cor in zip(cal.items(), cores):
             if v:
                 n = [int(x) for x in v]
-                ax.plot([x * x for x in n], [passos * x * x / t / 1e6 for x, t in zip(n, v.values())], "o-",
-                        color=cores.get(k, CINZA), lw=2, label=k)
-        ax.set(xscale="log", yscale="log", xlabel="pontos da malha", ylabel="M pontos·passo/s",
-               title=f"Equação do calor 2D — {gpu}")
+                ax.plot([x * x for x in n], list(v.values()), "o-", color=cor, lw=2, label=k)
+        ax.set(xscale="log", yscale="log", xlabel="pontos da malha", ylabel=f"tempo de {d['calor']['passos']} passos [s]",
+               title=f"Laje em incêndio — {gpu}")
         ax.legend(fontsize=9)
         salva(fig, "calor.png")
+
+    es = d.get("escada", {}).get("tempos_s", {})
+    if es:
+        fig, ax = plt.subplots(figsize=(7.5, 3.4))
+        base = es["Python puro"]
+        cores = [CINZA, CINZA, AZUL, AZUL, VERDE, VERMELHO][:len(es)]
+        barras(ax, list(es), [base / t for t in es.values()], cores, "{:,.0f}×", log=True)
+        ax.set(xlabel="vezes mais rápido que Python puro (log)", title=f"Escada de speedup — energia de 20 M molas")
+        salva(fig, "escada.png")
 
 
 if __name__ == "__main__":
