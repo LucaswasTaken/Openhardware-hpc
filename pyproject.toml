@@ -22,7 +22,7 @@ dependencies = [
 # GPU NVIDIA (o Colab já traz CuPy; numba-cuda substitui o numba.cuda embutido)
 gpu = ["cupy-cuda12x[ctk]>=13.3", "numba-cuda[cu12]>=0.10"]
 # ferramentas para executar e testar os notebooks
-dev = ["nbclient>=0.10", "nbformat>=5.10", "nbmake>=1.5", "pytest>=8"]
+dev = ["nbclient>=0.10", "nbformat>=5.10", "nbmake>=1.5", "pytest>=8", "python-docx>=1.1"]
 # geração dos vídeos (videos/)
 videos = ["manim>=0.19", "manim-voiceover[transcribe]>=0.3", "edge-tts>=7.0", "imageio-ffmpeg>=0.5"]
 
