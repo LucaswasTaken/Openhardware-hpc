@@ -1,0 +1,54 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:02.457
+E se você escolher o caminho da GPU?
+
+2
+00:00:02.557 --> 00:00:05.300
+Lá não há número de threads para variar.
+
+3
+00:00:06.400 --> 00:00:10.094
+Com CuPy, o código é o do NumPy com c p no lugar de
+
+4
+00:00:10.194 --> 00:00:15.079
+n p: leve os dados para a GPU, calcule, traga o resultado. Como não
+
+5
+00:00:15.179 --> 00:00:21.180
+dá para variar as threads, comparamos o mesmo problema em cada versão: uma escada.
+
+6
+00:00:21.866 --> 00:00:27.162
+Do Python puro ao NumPy, depois Numba com uma thread e com todas. Com o
+
+7
+00:00:27.262 --> 00:00:32.254
+dado já na GPU, o CuPy fica no mesmo patamar da CPU. Mas contando a
+
+8
+00:00:32.354 --> 00:00:36.358
+viagem da RAM até a GPU, ele cai para o fim da escada.
+
+9
+00:00:37.033 --> 00:00:40.934
+A análise: copiar oitocentos megabytes custa umas dez vezes a
+
+10
+00:00:41.034 --> 00:00:44.410
+própria conta. Para uma conta leve, feita uma vez só,
+
+11
+00:00:44.510 --> 00:00:47.952
+a GPU não compensa. Ela compensa quando os dados ficam
+
+12
+00:00:48.052 --> 00:00:51.428
+lá por muitos passos. Chegar a essa conclusão, com os
+
+13
+00:00:51.528 --> 00:00:55.101
+seus números, é exatamente o que se espera do relatório.
+

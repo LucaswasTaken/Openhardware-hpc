@@ -21,15 +21,15 @@ VIDEOS = [  # (número, arquivo da cena, classe, nome do arquivo final, título)
     ("04", "aula1.py", "V04MonteCarlo", "v04_monte_carlo", "Monte Carlo em paralelo com processos"),
     ("05", "aula1.py", "V05Joblib", "v05_joblib", "joblib: estudo paramétrico em 3 linhas"),
     ("06", "aula1.py", "V06Numba", "v06_numba", "Numba: do laço lento ao código compilado"),
-    ("07", "aula2.py", "V07CpuGpu", "v07_cpu_gpu", "CPU × GPU: milhares de núcleos simples"),
-    ("08", "aula2.py", "V08Transferencias", "v08_transferencias", "O gargalo das transferências"),
+    ("07", "aula2.py", "V07Operarios", "v07_operarios", "GPU: milhares de operários"),
+    ("08", "aula2.py", "V08Viagem", "v08_viagem", "Leve os dados uma vez"),
     ("08b", "v08b_dois_mundos.py", "DoisMundos", "v08b_dois_mundos", "CPU e GPU: dois mundos ou um só?"),
-    ("09", "aula2.py", "V09Kernel", "v09_kernel", "Grid, block e thread: escrevendo um kernel"),
-    ("10", "aula2.py", "V10Calor", "v10_calor", "Equação do calor na GPU, passo a passo"),
+    ("09", "aula2.py", "V09CuPy", "v09_cupy", "CuPy em 3 passos"),
+    ("10", "aula2.py", "V10Laje", "v10_laje", "Laje em incêndio: CPU × GPU"),
     ("11", "exercicios.py", "V11Relatorio", "v11_relatorio", "Como fazer o relatório"),
-    ("12", "exercicios.py", "V12Energia", "v12_energia_numba", "Exemplo: energia de deformação com Numba"),
-    ("13", "exercicios.py", "V13Falha", "v13_falha_cupy", "Exemplo: probabilidade de falha com CuPy"),
-    ("14", "exercicios.py", "V14Busca", "v14_busca_joblib", "Exemplo: quando paralelizar não ajuda (e como resolver)"),
+    ("12", "exercicios.py", "V12Numba", "v12_numba_threads", "Exemplo da lista: Numba variando as threads"),
+    ("13", "exercicios.py", "V13Escada", "v13_escada_gpu", "O mesmo exemplo na GPU: a escada de speedup"),
+    ("14", "exercicios.py", "V14IA", "v14_ia", "Usando IA sem se perder"),
 ]
 
 

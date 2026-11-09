@@ -1,0 +1,54 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.716
+Os operários são rápidos. Mas e o material?
+
+2
+00:00:04.800 --> 00:00:08.470
+No Colab e na maioria dos computadores, a GPU é uma placa
+
+3
+00:00:08.570 --> 00:00:13.364
+separada, com memória própria. Os dados nascem na memória do computador, a
+
+4
+00:00:13.464 --> 00:00:17.796
+RAM. Para a GPU calcular, eles precisam viajar pelo cabo PCIe, como
+
+5
+00:00:17.896 --> 00:00:21.236
+um caminhão levando material do depósito até a obra.
+
+6
+00:00:21.933 --> 00:00:26.181
+Medimos na aula. Levar 400 megabytes até a GPU levou
+
+7
+00:00:26.281 --> 00:00:31.532
+129 milissegundos. Uma conta leve com esses dados, multiplicar e
+
+8
+00:00:31.632 --> 00:00:36.131
+somar, só 19. Mesmo uma conta pesada, com seno, cosseno
+
+9
+00:00:36.231 --> 00:00:39.977
+e exponencial, levou 151. E ainda tem a volta.
+
+10
+00:00:40.666 --> 00:00:44.559
+Daí a regra de ouro: leve os dados uma vez, faça todas as
+
+11
+00:00:44.659 --> 00:00:49.462
+contas lá, e traga de volta só o resultado. Uma simulação com milhares
+
+12
+00:00:49.562 --> 00:00:53.384
+de passos paga a viagem uma vez só, e aí a GPU compensa.
+
+13
+00:00:53.484 --> 00:00:56.886
+Uma conta única, com os dados na RAM, quase nunca.
+

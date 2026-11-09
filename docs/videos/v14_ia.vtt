@@ -1,0 +1,46 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.859
+Pode usar inteligência artificial nos exercícios?
+
+2
+00:00:03.959 --> 00:00:06.284
+Pode, e deve. Mas com cuidado.
+
+3
+00:00:07.366 --> 00:00:10.977
+Cole a função serial do exercício e peça a versão com
+
+4
+00:00:11.077 --> 00:00:15.668
+Numba, sem mudar o resultado, explicando cada linha que mudou. Para
+
+5
+00:00:15.768 --> 00:00:19.379
+o caminho da GPU, peça a versão com CuPy, mantendo os
+
+6
+00:00:19.479 --> 00:00:22.530
+dados na GPU, e peça para mostrar como medir.
+
+7
+00:00:23.200 --> 00:00:28.831
+Antes de acreditar, confira quatro coisas. O resultado bate com a função serial?
+
+8
+00:00:28.931 --> 00:00:34.277
+Houve aquecimento antes de medir? Na GPU, houve sincronização? E a viagem da
+
+9
+00:00:34.377 --> 00:00:37.788
+RAM até a GPU está ou não dentro do tempo medido?
+
+10
+00:00:38.466 --> 00:00:42.823
+No relatório, diga em uma linha o que a IA fez e o
+
+11
+00:00:42.923 --> 00:00:48.974
+que você corrigiu. A IA escreve. Quem confere, mede e explica é você.
+

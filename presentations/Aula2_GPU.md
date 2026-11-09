@@ -3,7 +3,7 @@ marp: true
 theme: default
 paginate: true
 lang: pt-BR
-title: Aula 2 — GPU, paralelismo massivo
+title: Aula 2 — GPU na prática
 style: |
   section { font-size: 26px; }
   h1 { color: #2f7d4f; }
@@ -11,7 +11,7 @@ style: |
   table { font-size: 22px; }
 ---
 
-# Aula 2 — GPU: paralelismo massivo
+# Aula 2 — GPU na prática
 ## Computação de Alto Desempenho em Python para Engenharia Civil
 
 3h30 · notebook: `notebooks/Aula2_GPU.ipynb` (Colab, **T4 GPU**)
@@ -19,154 +19,163 @@ Vídeos curtos de cada bloco: **lucaswastaken.github.io/Openhardware-hpc**
 
 ---
 
-# Roteiro
+# Ao final da aula você vai saber
+
+1. quando uma GPU **ajuda** — e quando **atrapalha**
+2. por que **onde o dado mora** decide quase tudo
+3. levar código NumPy para a GPU com **CuPy** (`np` → `cp`)
+4. medir certo e comparar CPU × GPU no **seu** exercício
 
 | Tempo | Bloco |
 |---|---|
-| 0:00–0:25 | 1. CPU × GPU |
-| 0:25–0:50 | 2. CPU e GPU ainda são mundos separados? |
-| 0:50–1:05 | 3. CuPy e como medir direito |
-| 1:05–1:45 | 4. Kernels: grid, block, thread |
-| 1:45–2:00 | ☕ |
-| 2:00–3:00 | 5. Projeto: equação do calor numa laje |
-| 3:00–3:30 | 6. Quando usar GPU? Exercícios |
+| 0:00–0:20 | 1. Por que GPU? |
+| 0:20–0:50 | 2. Dois mundos: RAM e memória da GPU |
+| 0:50–1:30 | 3. CuPy em 3 passos |
+| 1:45–2:45 | 4. Projeto: laje em incêndio |
+| 2:45–3:30 | 5. Seu exercício na GPU · 6. Quando usar GPU |
 
 ---
 
-# 1. CPU × GPU
+# 1. Por que GPU? Milhares de operários
 
-| | CPU | GPU |
+| CPU | GPU |
+|---|---|
+| **8 engenheiros** experientes | **2 500 operários** |
+| cada um resolve qualquer coisa, com decisões diferentes | todos fazem **a mesma tarefa ao mesmo tempo**, cada um no seu pedaço |
+| montar a malha, decidir o próximo passo | tensão em 1 milhão de pontos, temperatura em cada nó, Monte Carlo |
+
+**A pergunta-chave:** o meu problema tem *muitos dados* recebendo *a mesma conta*?
+
+---
+
+# 2. Dois mundos: a viagem dos dados
+
+![w:900](figures/dois_mundos.png)
+
+Na GPU separada (o Colab), os dados **viajam** pelo cabo PCIe antes e depois da conta.
+
+---
+
+# Medido: a viagem custa mais que a conta
+
+![w:850](figures/copia_calculo.png)
+
+> **Regra de ouro:** leve os dados **uma vez**, faça **todas** as contas na GPU, traga só o resultado.
+
+---
+
+# Memória unificada: o depósito dentro da obra
+
+| Máquina | Exemplos | Viagem? |
 |---|---|---|
-| Núcleos | poucos, complexos | milhares, simples |
-| Otimizada para | latência | vazão |
-| Execução | independente | *warps* de 32 threads, mesma instrução (SIMT) |
-| Memória | cache grande, ~50–100 GB/s | ~300–3000 GB/s |
+| GPU separada | Colab (T4), GeForce/RTX, maioria dos clusters | sim |
+| Memória unificada | Apple M1–M5, Grace Hopper, DGX Spark, AMD MI300A | não |
 
-8 engenheiros sêniores × uma obra com 2 500 operários.
-
----
-
-# Warps e divergência
-
-- 32 threads executam **a mesma instrução**, cada uma com seu dado
-- `if` com caminhos diferentes dentro do warp → os dois caminhos rodam em sequência
-- GPU gosta de **contas uniformes** em **muitos dados**
+**Muda:** acaba a viagem; código mais simples.
+**Não muda:** continua precisando de **muitos dados com a mesma conta** e de memória rápida.
 
 ---
 
-# 2. CPU e GPU ainda são mundos separados?
+# 3. CuPy em 3 passos
 
-| Modelo | Exemplos | Cópia? |
-|---|---|---|
-| GPU discreta + PCIe | T4 (Colab), GeForce/RTX, clusters | sim (ou migração de páginas) |
-| CPU+GPU coerentes, link rápido | Grace Hopper / Grace Blackwell (NVLink-C2C ~900 GB/s), DGX Spark | não precisa |
-| Memória física única | Apple M1–M5, AMD MI300A, Ryzen AI Max, Lunar Lake | não existe |
+| Passo | Código |
+|---|---|
+| **1. Leve** os dados, uma vez | `x = cp.asarray(x_ram)` |
+| **2. Calcule** trocando `np` por `cp` | `cp.sqrt(...)`, `cp.sum(...)`, `A @ B` |
+| **3. Traga** só o resultado | `cp.asnumpy(y)` · `float(total)` |
 
----
-
-# O que muda e o que não muda
-
-**Muda:** sem cópias e sem o "pedágio" do PCIe; modelos grandes numa memória só; código mais simples.
-
-**Não muda:**
-- milhares de núcleos simples em warps → exige **paralelismo de dados**
-- **largura de banda e localidade** continuam mandando
-- na GPU discreta, a memória gerenciada do CUDA é uma **ilusão de software**: páginas migram pelo PCIe
-
-> A pergunta mudou: de *"quanto custa copiar?"* para *"onde o dado mora, e quem o processa melhor?"*
-
----
-
-# Medido: cópia × memória gerenciada
-
-![w:950](figures/memoria_unificada.png)
-
-<span class="pequeno">No Colab (Linux) há migração sob demanda e `prefetch`; no Windows, migra tudo a cada kernel.</span>
-
----
-
-# 3. CuPy: três regras para medir
-
-1. **Aquecer** (1ª chamada compila e aloca)
-2. **Sincronizar** — `cp.cuda.Device().synchronize()` (a GPU é assíncrona)
-3. **Separar** cálculo de transferência — `cupyx.profiler.benchmark`
-
-![w:820](figures/transferencias.png)
-
----
-
-# Contas por byte
-
-- soma de vetores: 1 conta / 12 bytes → **limitada pela memória**
-- matmul: $2n^3$ contas sobre $3n^2$ números → **limitada pelo cálculo**
-
-![bg right:50% fit](figures/matmul.png)
-
-`float64` em GPUs de consumo (T4, GeForce): muito mais lento.
-
----
-
-# 4. Kernels
+**Para medir:** aqueça (1ª chamada é lenta) e **sincronize** (`cp.cuda.Device().synchronize()`).
 
 ```python
-@cuda.jit
-def escala(x, a):
-    i = cuda.grid(1)           # blockIdx.x * blockDim.x + threadIdx.x
-    if i < x.size:
-        x[i] = a * x[i] + 1.0
-
-escala[(n + 255) // 256, 256](x_gpu, 2.0)     # [grade, bloco]
+def von_mises(sx, sy, txy):
+    xp = cp.get_array_module(sx)       # np ou cp, conforme onde estão os dados
+    return xp.sqrt(sx**2 - sx*sy + sy**2 + 3*txy**2)
 ```
-
-- `cp.ElementwiseKernel`: uma conta por elemento, em C, sem temporários (von Mises)
-- Numba-CUDA: laços e lógica por thread (Monte Carlo com `xoroshiro128p`)
 
 ---
 
-# 5. Projeto: equação do calor numa laje
+# O erro nº 1: esquecer de sincronizar
 
-$$T^{n+1}_{i,j} = T^n_{i,j} + r\,(T_{i\pm1,j} + T_{i,j\pm1} - 4T_{i,j}), \quad r \le 0{,}25$$
+A CPU **pede** a conta e segue em frente. Sem esperar a GPU, você mede só o **pedido**.
 
-Uma função para CPU **e** GPU (Array API):
+- sem sincronizar: *"a GPU fez em 0,02 ms!"* ← errado
+- sincronizando: o tempo real
+
+> Se um resultado de GPU parece bom demais, **pergunte se sincronizou**. A IA erra isso com frequência.
+
+---
+
+# Onde a GPU brilha: matrizes (e `float32`)
+
+![w:850](figures/matmul.png)
+
+Muitas contas por número → a GPU dispara. Em placas comuns, `float32` é **muito** mais rápido que `float64` — confira se 7 dígitos bastam.
+
+---
+
+# 4. Projeto: laje em incêndio
+
+Corte 20 × 20 cm, face de baixo a **600 °C**. Cada ponto vira um pouco a **média dos 4 vizinhos**, a cada passo.
 
 ```python
-def simula(T, passos):
-    xp = array_namespace(T)          # numpy ou cupy
-    ...
+def simula(T, passos):                   # a MESMA função na CPU e na GPU
+    xp = cp.get_array_module(T)
+    ...                                  # T + 0,24 × (vizinhos − 4·T)
 ```
 
-Versões: Python puro → NumPy → Numba paralelo → CuPy → kernel 2D Numba-CUDA.
+`laje_inicial(n)` → CPU · `laje_inicial(n, cp)` → GPU. Quem decide é **onde está o array**.
 
 ---
 
-# Vazão por tamanho de malha
+# Quem é mais rápido? Depende do tamanho
 
-![w:820](figures/calor.png)
+![w:780](figures/calor.png)
 
-<span class="pequeno">Problema limitado pela memória: ganha quem tem mais largura de banda. Meça no seu hardware.</span>
+<span class="pequeno">Malha pequena: a GPU não ganha. Neste notebook (12 núcleos + GPU de notebook) o Numba ganhou em todos os tamanhos; no Colab (2 núcleos + T4) a GPU passa à frente nas malhas grandes, porque os dados ficam parados nela por 300 passos. Meça no seu hardware.</span>
+
+---
+
+# 5. O seu exercício na GPU: a escada
+
+![w:850](figures/escada.png)
+
+<span class="pequeno">Mesmo problema da lista (energia de 20 M molas). Contando a viagem RAM → GPU, a GPU perde para o Numba: a conta é leve e feita uma vez só.</span>
+
+---
+
+# Usando IA sem se perder
+
+> *"Tenho esta função [cole a serial]. Reescreva com CuPy, mantendo os dados na GPU. Mostre como medir (aquecer e sincronizar) e como conferir com a original."*
+
+Antes de acreditar, confira:
+1. o resultado bate com a serial
+2. aqueceu antes de medir
+3. sincronizou antes de parar o relógio
+4. sabe se a viagem RAM → GPU está no tempo
 
 ---
 
 # 6. Quando usar GPU?
 
-1. Há **paralelismo de dados**?
-2. **Muita conta por byte**? Se não, o dado já está na GPU?
-3. **Onde o dado mora?** Faça muitos passos lá antes de trazer de volta.
-4. `float32` basta?
-5. Mediu direito? (aquecer, sincronizar, separar, repetir)
+1. **Muitos dados, mesma conta?**
+2. **Os dados podem ficar na GPU** por muitos passos?
+3. **Muita conta por número?** (matrizes, simulação, Monte Carlo)
+4. **`float32` basta?**
+5. **Mediu direito?**
 
-| Ferramenta | Use para |
+| Ferramenta | Quando |
 |---|---|
-| CuPy | `np` → `cp` |
-| `ElementwiseKernel` / `RawKernel` | conta por elemento |
-| Numba-CUDA | kernels em Python |
-| Array API | mesmo código CPU/GPU |
-| PyTorch / JAX | cálculo + derivadas automáticas |
+| **CuPy** (a principal) | `np` → `cp`: arrays, álgebra linear, FFT |
+| Numba-CUDA | sua própria função por operário (kernel) |
+| PyTorch / JAX | otimização, derivadas automáticas |
+| RAPIDS cuDF | tabelas grandes (pandas na GPU) |
 
 ---
 
 # Exercícios
 
-- `exercicios/lista.md`: escolha **um** exercício e **uma** tecnologia
-- `exercicios/modelo_relatorio.ipynb`: mede, confere e desenha os gráficos
-- Vídeos 11–14: como fazer o relatório e exemplos resolvidos (parecidos, não iguais)
+- `exercicios/lista.md` — escolha **um** exercício e **um** caminho: **CPU com Numba** (recomendado) ou **GPU com CuPy**
+- Só **escalabilidade forte**: CPU varia as threads; GPU monta a escada
+- `exercicios/modelo_relatorio.ipynb` — mede, confere e desenha; troque só as células marcadas
+- `exercicios/INSTALACAO.md` — Colab ou seu computador
+- Vídeos 11–14: relatório, exemplo Numba, exemplo CuPy, IA

@@ -1,0 +1,74 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.675
+Uma laje de concreto com a face de baixo num incêndio.
+
+2
+00:00:03.775 --> 00:00:07.172
+Até onde o calor sobe, e quem calcula mais rápido?
+
+3
+00:00:08.266 --> 00:00:12.175
+Dividimos o corte da laje numa malha. A cada passo de tempo,
+
+4
+00:00:12.275 --> 00:00:16.252
+cada ponto fica um pouco mais parecido com a média dos quatro
+
+5
+00:00:16.352 --> 00:00:20.862
+vizinhos. Repetindo isso centenas de vezes, o calor do incêndio sobe.
+
+6
+00:00:20.933 --> 00:00:25.151
+Milhões de pontos, a mesma conta, e os dados ficam parados
+
+7
+00:00:25.251 --> 00:00:28.873
+na GPU durante todos os passos. É o cenário ideal.
+
+8
+00:00:29.566 --> 00:00:33.807
+No notebook, a simulação é escrita uma vez só. Ela descobre se a
+
+9
+00:00:33.907 --> 00:00:37.606
+laje está na memória do computador ou na da GPU, e usa a
+
+10
+00:00:37.706 --> 00:00:42.354
+biblioteca certa. Quem decide onde roda é o lugar onde os dados estão.
+
+11
+00:00:43.033 --> 00:00:48.499
+Os tempos medidos. Na malha pequena, de 128 por 128, há pouco trabalho
+
+12
+00:00:48.599 --> 00:00:53.746
+para tantos operários, e a GPU não ganha. Na malha grande, de 2048
+
+13
+00:00:53.846 --> 00:00:58.755
+por 2048, a diferença diminui, mas aqui a CPU, com 12 núcleos e
+
+14
+00:00:58.855 --> 00:01:03.844
+Numba, ainda ganha de uma GPU de notebook. No Colab, com só dois
+
+15
+00:01:03.944 --> 00:01:07.581
+núcleos e uma GPU maior, a situação se inverte.
+
+16
+00:01:08.266 --> 00:01:12.404
+Resumindo: problema grande, com os dados parados na GPU,
+
+17
+00:01:12.504 --> 00:01:15.886
+a GPU ganha. Problema pequeno, a CPU com Numba
+
+18
+00:01:15.986 --> 00:01:19.518
+basta. E meça no seu hardware antes de concluir.
+

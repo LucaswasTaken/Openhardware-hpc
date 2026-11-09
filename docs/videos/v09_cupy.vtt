@@ -1,0 +1,58 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.988
+Se você sabe usar o NumPy, já sabe usar a GPU. Quase.
+
+2
+00:00:06.066 --> 00:00:10.390
+O CuPy copia o jeito do NumPy. A tensão de von Mises
+
+3
+00:00:10.490 --> 00:00:15.154
+em milhões de pontos, com NumPy, roda na CPU. Troque n p
+
+4
+00:00:15.254 --> 00:00:18.302
+por c p, e a mesma conta roda na GPU.
+
+5
+00:00:19.000 --> 00:00:22.997
+São três passos. Leve os dados para a GPU, com c p ponto
+
+6
+00:00:23.097 --> 00:00:27.313
+asarray. Calcule, trocando n p por c p. E traga de volta só
+
+7
+00:00:27.413 --> 00:00:32.508
+o resultado, com c p ponto asnumpy, ou convertendo um número com float.
+
+8
+00:00:33.200 --> 00:00:36.396
+Na aula, com os dados já na GPU, a GPU
+
+9
+00:00:36.496 --> 00:00:40.300
+fez a conta 17 vezes mais rápido que o NumPy.
+
+10
+00:00:41.000 --> 00:00:43.980
+Um cuidado ao medir. A CPU pede a conta à GPU
+
+11
+00:00:44.080 --> 00:00:47.746
+e segue em frente, sem esperar. Se você parar o relógio
+
+12
+00:00:47.846 --> 00:00:51.854
+nessa hora, mediu só o pedido. Por isso, sincronize antes de
+
+13
+00:00:51.954 --> 00:00:55.551
+parar o relógio. Se um tempo de GPU parece bom demais,
+
+14
+00:00:55.651 --> 00:01:00.892
+a primeira pergunta é: sincronizou? A inteligência artificial erra muito isso.
+

@@ -1,0 +1,282 @@
+"""Gera exercicios/lista.docx: a lista do professor (exercicios/assets/lista_base.docx), no formato original,
+com correções pontuais, e um Anexo (exercicios/lista_anexo.md) com o passo a passo e o exemplo resolvido.
+
+    python tools/build_lista_docx.py
+
+Para mudar data, número da lista ou perguntas, edite o lista_base.docx no Word (ou as CORRECOES abaixo)."""
+
+import copy
+import re
+from pathlib import Path
+
+from docx import Document
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.enum.text import WD_BREAK
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.shared import Pt, RGBColor
+
+RAIZ = Path(__file__).resolve().parents[1]
+BASE = RAIZ / "exercicios" / "assets" / "lista_base.docx"
+ANEXO = RAIZ / "exercicios" / "lista_anexo.md"
+SAIDA = RAIZ / "exercicios" / "lista.docx"
+SITE_REPO = "https://github.com/LucaswasTaken/Openhardware-hpc/blob/master/exercicios/"
+FONTE_COD = "Consolas"
+
+# ---------------------------------------------------------------- correções na lista do professor
+# (início do parágrafo, novos textos dos runs) — os runs mantêm a formatação original (rótulo em negrito etc.)
+CORRECOES = [
+    ("Joblib", ["Numba", ": paralelização na CPU com @njit(parallel=True) e prange (recomendado)"]),
+    ("Numba", ["CuPy", ": computação em GPU (troque np por cp)"]),
+    ("CuPy", ["Joblib / Multiprocessing", ": paralelização na CPU com processos"]),
+    ("Escalabilidade = ", ["Escalabilidade forte", ": mesmo tamanho de problema, variando o número de threads/processos "
+                           "(na GPU: comparar com as versões de CPU)"]),
+]
+APAGAR = ["Multiprocessing: Paralelização tradicional", "Dask", "Nível de Dificuldade", "Boa sorte"]
+TROCAS = [("dos 5 Exercícios", "dos 8 Exercícios"), ("Produto Vetorial", "Produto Escalar"),
+          ("ponto dentor de", "ponto dentro de")]
+# Cada exercício fica só com: título, Aplicação (originais), o problema e o que paralelizar — o resto (tamanhos,
+# algoritmo, ferramentas, análise) fica a critério do estudante. Os textos de "Problema" vêm da lista original.
+EXERCICIOS = {
+    "Exercício 1": ("produto escalar de dois vetores: result = Σ(a[i] * b[i]).",
+                    "a soma dos produtos, dividindo os vetores entre os trabalhadores."),
+    "Exercício 2": ("multiplicação C = A × B de matrizes densas quadradas, pelo algoritmo de triplo loop: "
+                    "C[i][j] = Σ A[i][k] * B[k][j].",
+                    "o cálculo dos elementos de C (por linhas, colunas ou blocos)."),
+    "Exercício 3": ("calcular π usando pontos aleatórios: π ≈ 4 × (pontos dentro do círculo / total de pontos).",
+                    "a geração e a contagem dos pontos."),
+    "Exercício 4": ("calcular a soma de todos os elementos de um array grande e verificar se em algum momento há "
+                    "ganho em paralelizar em GPU.",
+                    "a soma (redução) dos elementos."),
+    "Exercício 5": ("encontrar todas as ocorrências de um valor em um array grande, retornando os índices.",
+                    "a busca, dividindo o array em partes, e combinar os resultados."),
+    "Exercício 6": ("ordenar um array grande.", "a ordenação."),
+    "Exercício 7": ("verificar quais pontos estão dentro de um polígono (algoritmo do tiro).",
+                    "o teste dos pontos."),
+    "Exercício 8": ("calcular o fecho convexo de um conjunto de pontos.", "o cálculo do fecho."),
+}
+EMOJI = re.compile("[\U0001F000-\U0001FAFF☀-➿⭐️‍�]")
+AVISO_ANEXO = " Veja o Anexo, ao final: passo a passo, escalabilidade forte e um exemplo resolvido."
+
+
+def textos(p, novos):
+    """Põe `novos` nos primeiros runs do parágrafo e esvazia os demais (mantém a formatação de cada run)."""
+    for r, t in zip(p.runs, novos + [""] * len(p.runs)):
+        r.text = t
+
+
+def tem_lista(p):
+    pr = p._p.pPr
+    return pr is not None and pr.numPr is not None
+
+
+def apaga(p):
+    p._p.getparent().remove(p._p)
+
+
+def sem_emoji(doc):
+    for p in doc.paragraphs:
+        for r in p.runs:
+            if EMOJI.search(r.text):
+                r.text = EMOJI.sub("", r.text)
+        cheios = [r for r in p.runs if r.text]
+        if cheios:
+            cheios[0].text = cheios[0].text.lstrip()
+
+
+def simplifica_exercicios(doc):
+    for chave, (problema, paralelizar) in EXERCICIOS.items():
+        ps = doc.paragraphs
+        i = next(i for i, p in enumerate(ps) if chave in p.text and p.style.name.startswith("Heading 1"))
+        aplicacao = ps[i + 1]
+        assert aplicacao.text.startswith("Aplicação"), aplicacao.text
+        for p in ps[i + 2:]:
+            if p.style.name.startswith("Heading 1"):
+                break
+            if p.text.strip() or tem_lista(p):     # mantém só o parágrafo vazio com a linha separadora
+                apaga(p)
+        anterior = aplicacao._p
+        for rotulo, texto in (("Problema:", problema), ("O que paralelizar:", paralelizar)):
+            novo = copy.deepcopy(aplicacao._p)
+            anterior.addnext(novo)
+            anterior = novo
+            from docx.text.paragraph import Paragraph
+            textos(Paragraph(novo, aplicacao._parent), [rotulo, " " + texto[0].upper() + texto[1:]])
+
+
+def corrige(doc):
+    ps = doc.paragraphs
+    feitos = set()
+    for inicio, novos in CORRECOES:
+        p = next(p for i, p in enumerate(ps) if i not in feitos and p.text.startswith(inicio))
+        feitos.add(ps.index(p))
+        textos(p, novos)
+    for inicio in APAGAR:
+        apaga(next(p for p in doc.paragraphs if p.text.startswith(inicio)))
+    sem_emoji(doc)
+    for p in doc.paragraphs:
+        for a, b in TROCAS:
+            if a in p.text:
+                for r in p.runs:
+                    r.text = r.text.replace(a, b)
+        if p.text.startswith("Você deve escolher apenas UM"):
+            p.runs[-1].text += AVISO_ANEXO
+    simplifica_exercicios(doc)
+
+
+# ---------------------------------------------------------------- anexo (markdown simples → estilos do documento)
+SUP = str.maketrans("0123456789n", "⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ")
+SUB = str.maketrans("0123456789ijkn", "₀₁₂₃₄₅₆₇₈₉ᵢⱼₖₙ")
+TOKEN = re.compile(r"(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\)|\$[^$]+\$)")
+
+
+def latex(s):
+    s = s.replace(r"\tfrac12", "½").replace(r"\,", " ").replace(r"\sum", "Σ").replace(r"\delta", "δ")
+    s = re.sub(r"\^(\w)", lambda m: m.group(1).translate(SUP), s)
+    return re.sub(r"_(\w)", lambda m: m.group(1).translate(SUB), s)
+
+
+def link(par, texto, url, tamanho=None):
+    url = url if url.startswith("http") else SITE_REPO + url
+    r_id = par.part.relate_to(url, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+                              is_external=True)
+    h = OxmlElement("w:hyperlink"); h.set(qn("r:id"), r_id)
+    r = OxmlElement("w:r")
+    rpr = copy.deepcopy(MODELO["corpo"]) if MODELO.get("corpo") is not None else OxmlElement("w:rPr")
+    for velho in rpr.findall(qn("w:color")) + rpr.findall(qn("w:u")):
+        rpr.remove(velho)
+    cor = OxmlElement("w:color"); cor.set(qn("w:val"), "0563C1"); rpr.append(cor)
+    u = OxmlElement("w:u"); u.set(qn("w:val"), "single"); rpr.append(u)
+    if tamanho:
+        for velho in rpr.findall(qn("w:sz")) + rpr.findall(qn("w:szCs")):
+            rpr.remove(velho)
+        for tag in ("w:sz", "w:szCs"):
+            e = OxmlElement(tag); e.set(qn("w:val"), str(int(tamanho.pt * 2))); rpr.append(e)
+    r.append(rpr); t = OxmlElement("w:t"); t.text = texto; t.set(qn("xml:space"), "preserve"); r.append(t)
+    h.append(r); par._p.append(h)
+
+
+MODELO = {}   # rPr de runs de referência da lista do professor (fonte, tamanho, cor) — preenchido em main()
+
+
+def run_com(par, texto, papel):
+    run = par.add_run(texto)
+    base = MODELO.get(papel)
+    if base is not None:
+        if run._r.rPr is not None:
+            run._r.remove(run._r.rPr)
+        run._r.insert(0, copy.deepcopy(base))
+    return run
+
+
+def inline(par, texto, negrito=False, italico=False, tamanho=None, papel="corpo"):
+    for parte in TOKEN.split(texto):
+        if not parte:
+            continue
+        if parte.startswith("**"):
+            inline(par, parte[2:-2], True, italico, tamanho, papel); continue
+        if parte.startswith("*") and len(parte) > 2:
+            inline(par, parte[1:-1], negrito, True, tamanho, papel); continue
+        if parte.startswith("["):
+            m = re.match(r"\[([^\]]+)\]\(([^)]+)\)", parte)
+            link(par, m.group(1), m.group(2), tamanho); continue
+        cod = parte.startswith("`")
+        it = italico or parte.startswith("$")
+        parte = parte[1:-1] if cod else (latex(parte[1:-1]) if parte.startswith("$") else parte)
+        run = run_com(par, parte, papel)
+        if negrito:
+            run.bold = True
+        if it:
+            run.italic = True
+        if cod:
+            run.font.name = FONTE_COD; run.font.size = Pt(9)
+        elif tamanho:
+            run.font.size = tamanho
+
+
+def sombreia(celula, cor):
+    tc = celula._tc.get_or_add_tcPr(); sh = OxmlElement("w:shd")
+    sh.set(qn("w:val"), "clear"); sh.set(qn("w:color"), "auto"); sh.set(qn("w:fill"), cor); tc.append(sh)
+
+
+def bordas(tabela):
+    tblPr = tabela._tbl.tblPr; b = OxmlElement("w:tblBorders")
+    for lado in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        e = OxmlElement(f"w:{lado}")
+        for k, v in (("val", "single"), ("sz", "4"), ("space", "0"), ("color", "A6A6A6")):
+            e.set(qn(f"w:{k}"), v)
+        b.append(e)
+    tblPr.append(b)
+
+
+def tabela(doc, linhas):
+    cel = [[c.strip() for c in l.strip().strip("|").split("|")] for l in linhas if not re.match(r"^\|[\s:|-]+\|$", l.strip())]
+    t = doc.add_table(rows=len(cel), cols=len(cel[0])); bordas(t); t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for i, linha in enumerate(cel):
+        for j, txt in enumerate(linha):
+            c = t.cell(i, j); p = c.paragraphs[0]; p.paragraph_format.space_after = Pt(0)
+            inline(p, txt, negrito=(i == 0), tamanho=Pt(9.5))
+            if i == 0:
+                sombreia(c, "D9E2F3")
+    doc.add_paragraph()
+
+
+def codigo(doc, linhas):
+    t = doc.add_table(rows=1, cols=1); t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    c = t.cell(0, 0); sombreia(c, "F2F2F2"); p = c.paragraphs[0]
+    p.paragraph_format.space_after = Pt(0); p.paragraph_format.line_spacing = 1.0
+    for k, l in enumerate(linhas):
+        r = p.add_run(l); r.font.name = FONTE_COD; r.font.size = Pt(8.5)
+        if k < len(linhas) - 1:
+            r.add_break()
+    doc.add_paragraph()
+
+
+def anexo(doc, md, numpr_marcador):
+    quebra = doc.add_paragraph(); quebra.add_run().add_break(WD_BREAK.PAGE)
+    linhas = md.splitlines()
+    i = 0
+    while i < len(linhas):
+        l = linhas[i]
+        if l.startswith("```"):
+            j = i + 1
+            while not linhas[j].startswith("```"):
+                j += 1
+            codigo(doc, linhas[i + 1:j]); i = j + 1; continue
+        if l.startswith("|"):
+            j = i
+            while j < len(linhas) and linhas[j].startswith("|"):
+                j += 1
+            tabela(doc, linhas[i:j]); i = j; continue
+        m = re.match(r"^(#{1,3}) (.*)", l)
+        if m:
+            nivel = 1 if len(m.group(1)) == 1 else 3          # como na lista: Heading 1 (exercício) e 3 (subtítulo)
+            h = doc.add_paragraph(style=f"Heading {nivel}")
+            inline(h, m.group(2), papel=f"h{nivel}"); i += 1; continue
+        if l.startswith("- "):
+            p = doc.add_paragraph(style="Normal"); inline(p, l[2:], papel="item")
+            p._p.get_or_add_pPr().append(copy.deepcopy(numpr_marcador))
+            i += 1; continue
+        if l.startswith(">"):
+            p = doc.add_paragraph(style="Normal (Web)"); inline(p, l.lstrip("> "), italico=True); i += 1; continue
+        if l.strip():
+            p = doc.add_paragraph(style="Normal (Web)"); inline(p, l)
+        i += 1
+
+
+def main():
+    doc = Document(BASE)
+    ps = doc.paragraphs
+    acha = lambda inicio: next(p for p in ps if p.text.startswith(inicio))  # noqa: E731
+    numpr = copy.deepcopy(acha("Joblib")._p.pPr.numPr)
+    for papel, run in (("corpo", acha("Você deve escolher").runs[0]), ("h1", acha("🔢").runs[1]),
+                       ("h3", acha("Especificações").runs[0]), ("item", acha("Implementar produto escalar").runs[0])):
+        MODELO[papel] = copy.deepcopy(run._r.rPr)
+    corrige(doc)
+    anexo(doc, ANEXO.read_text(encoding="utf-8"), numpr)
+    doc.save(SAIDA)
+    print(f"{SAIDA} gerado")
+
+
+if __name__ == "__main__":
+    main()

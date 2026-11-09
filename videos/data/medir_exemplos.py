@@ -1,31 +1,33 @@
-"""Mede os exemplos resolvidos dos vídeos 12–14 e grava videos/data/exemplos.json.
+"""Mede o exemplo resolvido da lista (energia de deformação) e grava videos/data/exemplos.json.
 
-    python videos/data/medir_exemplos.py      (no ambiente dos notebooks: .venv com numba, joblib e, se houver, cupy)
+    .venv\\Scripts\\python videos/data/medir_exemplos.py     (ambiente dos notebooks: numba e, se houver GPU, cupy)
 
-São problemas PARECIDOS com os da lista, não iguais: energia de deformação (≈ produto escalar), probabilidade de
-falha com CuPy (≈ Monte Carlo para π) e busca de nós numa região com joblib (≈ busca em array)."""
+O mesmo exemplo aparece em exercicios/lista.md, no vídeo 12 (Numba variando as threads)
+e no vídeo 13 (escada de speedup até a GPU com CuPy)."""
 
 import json
 import os
+import platform
 import time
 from pathlib import Path
 
 import numpy as np
-from joblib import Parallel, delayed
-from numba import njit, prange
+from numba import get_num_threads, njit, prange, set_num_threads
 
 SAIDA = Path(__file__).with_name("exemplos.json")
+N = 50_000_000            # 50 milhões de molas (≈ 800 MB em dois vetores float64)
 
 
-def melhor(f, *a, rep=5):
-    f(*a)
+def melhor(f, *a, rep=5, sync=lambda: None):
+    f(*a); sync()                                   # aquecimento (compila / aloca)
     ts = []
     for _ in range(rep):
-        t = time.perf_counter(); f(*a); ts.append(time.perf_counter() - t)
+        sync(); t = time.perf_counter(); f(*a); sync()
+        ts.append(time.perf_counter() - t)
     return min(ts)
 
 
-# ---- 12: energia de deformação U = ½ Σ k_i δ_i²  (Numba)
+# ---- energia de deformação U = ½ Σ k_i δ_i²
 def energia_python(k, d):
     u = 0.0
     for i in range(len(k)):
@@ -33,112 +35,67 @@ def energia_python(k, d):
     return u
 
 
-@njit
-def energia_numba(k, d):
-    u = 0.0
-    for i in range(k.size):
-        u += 0.5 * k[i] * d[i] * d[i]
-    return u
+def energia_numpy(k, d):
+    return 0.5 * np.dot(k, d * d)
 
 
 @njit(parallel=True)
-def energia_numba_par(k, d):
+def energia_numba(k, d):
     u = 0.0
     for i in prange(k.size):
         u += 0.5 * k[i] * d[i] * d[i]
     return u
 
 
-def ex12():
+def nucleos():
+    return [p for p in (1, 2, 3, 4, 6, 8, 12, 16, 24, 32) if p <= get_num_threads()]
+
+
+def medir():
     rng = np.random.default_rng(0)
-    n = 50_000_000
-    k, d = rng.uniform(1e6, 1e8, n), rng.normal(0, 1e-3, n)
-    t_py = melhor(energia_python, k[:1_000_000], d[:1_000_000], rep=1) * 50
-    t_np = melhor(lambda: 0.5 * np.dot(k, d * d))
-    t_nb = melhor(energia_numba, k, d)
-    t_nbp = melhor(energia_numba_par, k, d)
-    gbs = 2 * n * 8 / t_nbp / 1e9
-    return {"n": n, "python_s": t_py, "numpy_s": t_np, "numba_s": t_nb, "numba_par_s": t_nbp,
-            "banda_gbs": gbs, "nucleos": os.cpu_count()}
+    k, d = rng.uniform(1e6, 1e8, N), rng.normal(0, 1e-3, N)
+    ref = energia_numpy(k, d)
 
+    # Python puro: 1 milhão de molas e multiplica por 50 (rodar os 50 milhões levaria minutos)
+    t_py = melhor(energia_python, k[:1_000_000], d[:1_000_000], rep=1) * (N / 1_000_000)
+    t_np = melhor(energia_numpy, k, d)
 
-# ---- 13: probabilidade de falha com CuPy
-def pf_numpy(n, seed=1):
-    rng = np.random.default_rng(seed)
-    R = rng.lognormal(np.log(350.0), 0.10, n); S = rng.gumbel(200.0, 25.0, n)
-    return np.count_nonzero(R < S) / n
+    # escalabilidade forte: o MESMO problema, 1, 2, 4… threads
+    pmax = get_num_threads()
+    threads = {}
+    for p in nucleos():
+        set_num_threads(p)
+        assert np.isclose(energia_numba(k, d), ref, rtol=1e-9)
+        threads[str(p)] = melhor(energia_numba, k, d)
+    set_num_threads(pmax)
 
+    out = {"n": N, "ref": ref, "python_s": t_py, "numpy_s": t_np, "threads_s": threads,
+           "nucleos": pmax, "cpu": platform.processor() or platform.machine(),
+           "banda_gbs": 2 * N * 8 / threads[str(pmax)] / 1e9}
 
-def ex13():
-    out = {"cpu": {}, "gpu": {}, "convergencia": []}
-    for n in (10**6, 10**7, 5 * 10**7):
-        out["cpu"][str(n)] = melhor(pf_numpy, n, rep=2)
+    # degrau GPU: CuPy com o dado já na GPU e incluindo a cópia RAM → VRAM
     try:
         import cupy as cp
+        sync = cp.cuda.Device().synchronize
 
-        def pf_cupy(n, seed=1):
-            rng = cp.random.default_rng(seed)
-            # lognormal = exp(normal); Gumbel por inversão: loc − scale·ln(−ln U)
-            R = cp.exp(np.log(350.0) + 0.10 * rng.standard_normal(n))
-            S = 200.0 - 25.0 * cp.log(-cp.log(rng.random(n)))
-            r = int(cp.count_nonzero(R < S)) / n
-            return r
+        def energia_cupy(kg, dg):
+            return 0.5 * cp.dot(kg, dg * dg)
 
-        for n in (10**6, 10**7, 5 * 10**7):
-            pf_cupy(n); cp.cuda.Device().synchronize()
-            out["gpu"][str(n)] = melhor(pf_cupy, n, rep=3)
-        ref = pf_cupy(2 * 10**8, seed=99)
-        for n in (10**3, 10**4, 10**5, 10**6, 10**7):
-            erros = [abs(pf_cupy(n, seed=s) - ref) / ref for s in range(20)]
-            out["convergencia"].append({"n": n, "erro_medio": float(np.mean(erros))})
-        out["pf"] = ref
-        out["gpu_nome"] = cp.cuda.runtime.getDeviceProperties(0)["name"]
-        out["gpu_nome"] = out["gpu_nome"].decode() if isinstance(out["gpu_nome"], bytes) else out["gpu_nome"]
+        def energia_cupy_com_copia(k, d):
+            return float(energia_cupy(cp.asarray(k), cp.asarray(d)))
+
+        kg, dg = cp.asarray(k), cp.asarray(d)
+        assert np.isclose(float(energia_cupy(kg, dg)), ref, rtol=1e-9)
+        out["cupy_s"] = melhor(energia_cupy, kg, dg, sync=sync)
+        out["cupy_copia_s"] = melhor(energia_cupy_com_copia, k, d, rep=3, sync=sync)
+        nome = cp.cuda.runtime.getDeviceProperties(0)["name"]
+        out["gpu"] = nome.decode() if isinstance(nome, bytes) else nome
     except Exception as e:  # noqa: BLE001 - sem GPU: só a parte de CPU
         out["gpu_erro"] = str(e)
     return out
 
 
-# ---- 14: nós de uma malha dentro de uma região (joblib)
-def dentro_regiao(xy, cx=500.0, cy=500.0, r=120.0):
-    d2 = (xy[:, 0] - cx) ** 2 + (xy[:, 1] - cy) ** 2
-    return np.flatnonzero(d2 <= r * r)
-
-
-def nos_serial_loop(xy, cx=500.0, cy=500.0, r=120.0):
-    out = []
-    for i in range(len(xy)):
-        dx, dy = xy[i, 0] - cx, xy[i, 1] - cy
-        if dx * dx + dy * dy <= r * r:
-            out.append(i)
-    return out
-
-
-def bloco(xy, inicio):
-    """Cada processo devolve os índices locais + deslocamento do bloco (para juntar no fim)."""
-    return dentro_regiao(xy) + inicio
-
-
-def ex14():
-    rng = np.random.default_rng(3)
-    n = 40_000_000
-    xy = rng.random((n, 2)) * 1000
-    t_loop = melhor(nos_serial_loop, xy[:500_000], rep=1) * (n / 500_000)
-    t_np = melhor(dentro_regiao, xy, rep=3)
-    tempos = {"processos": {}, "threads": {}}
-    for prefer, chave in ((None, "processos"), ("threads", "threads")):
-        for jobs in (1, 2, 4, os.cpu_count()):
-            partes = np.array_split(np.arange(n), jobs * 4)
-
-            def roda():  # processos: cada bloco é COPIADO para o processo; threads: compartilham a memória
-                res = Parallel(n_jobs=jobs, prefer=prefer)(delayed(bloco)(xy[p[0]:p[-1] + 1], p[0]) for p in partes)
-                return np.concatenate(res)
-            assert np.array_equal(roda(), dentro_regiao(xy))
-            tempos[chave][str(jobs)] = melhor(roda, rep=2)
-    return {"n": n, "loop_s": t_loop, "numpy_s": t_np, "joblib_s": tempos, "achados": int(dentro_regiao(xy).size)}
-
-
 if __name__ == "__main__":
-    dados = {"ex12": ex12(), "ex13": ex13(), "ex14": ex14()}
+    dados = {"energia": medir()}
     SAIDA.write_text(json.dumps(dados, indent=1, ensure_ascii=False), encoding="utf-8")
     print(json.dumps(dados, indent=1, ensure_ascii=False))

@@ -26,15 +26,18 @@ Introdução prática à **computação de alto desempenho (HPC)** em Python par
 | 2:30–3:10 | Numba (`@njit`, `prange`) | matriz de rigidez de uma treliça com 2 milhões de barras |
 | 3:10–3:30 | Exercício guiado e lista de exercícios | verificação de tensões em 1 milhão de seções |
 
-### ⚡ Aula 2 — GPU: paralelismo massivo (3h30) · [notebook](notebooks/Aula2_GPU.ipynb)
+### ⚡ Aula 2 — GPU na prática, com CuPy (3h30) · [notebook](notebooks/Aula2_GPU.ipynb)
+Feita para quem **não é programador**: cada célula diz o que faz e o que observar, e traz um prompt pronto para pedir ajuda à IA.
+
 | Tempo | Bloco | Exemplo |
 |---|---|---|
-| 0:00–0:25 | CPU × GPU: núcleos, warps (SIMT), memória | propriedades da sua GPU |
-| 0:25–0:50 | **CPU e GPU ainda são mundos separados?** Memória unificada (Apple M, Grace Hopper, MI300A) × GPU discreta | cópia explícita × memória gerenciada × prefetch |
-| 0:50–1:05 | CuPy e como medir direito (aquecer, sincronizar) | soma de vetores; matmul `float32` × `float64` |
-| 1:05–1:45 | Kernels: `ElementwiseKernel` e Numba-CUDA (grid, block, thread) | tensão de von Mises; Monte Carlo |
-| 2:00–3:00 | Projeto: equação do calor 2D, do Python puro à GPU, com **um código para CPU e GPU** (Array API) | laje em incêndio |
-| 3:00–3:30 | Quando usar GPU? Checklist e exercícios | — |
+| 0:00–0:20 | Por que GPU? Milhares de operários | a sua GPU × a sua CPU |
+| 0:20–0:50 | **Dois mundos:** RAM × memória da GPU; memória unificada (Apple M, Grace Hopper, MI300A) | a viagem de 400 MB custa mais que a conta |
+| 0:50–1:30 | **CuPy em 3 passos:** leve, calcule (`np` → `cp`), traga; o erro de não sincronizar | tensão de von Mises; matrizes `float32` × `float64` |
+| 1:45–2:45 | Projeto: o **mesmo código** na CPU e na GPU | laje em incêndio |
+| 2:45–3:15 | O seu exercício na GPU: a **escada de speedup**; usando IA sem se perder | energia de deformação (exemplo da lista) |
+| 3:15–3:30 | Quando usar GPU; outras ferramentas (Numba-CUDA, PyTorch, JAX, RAPIDS) | — |
+| apêndice | Kernels com Numba-CUDA; memória gerenciada (opcional) | Monte Carlo para π |
 
 ---
 
@@ -50,19 +53,23 @@ Vídeos de ~1 minuto, com animações e narração, para rever os conceitos — 
 | 04 | Monte Carlo em paralelo com processos | 1 |
 | 05 | joblib: estudo paramétrico em 3 linhas | 1 |
 | 06 | Numba: do laço lento ao código compilado | 1 |
-| 07 | CPU × GPU: milhares de núcleos simples | 2 |
-| 08 | O gargalo das transferências | 2 |
+| 07 | GPU: milhares de operários | 2 |
+| 08 | Leve os dados uma vez | 2 |
 | 08b | CPU e GPU: dois mundos ou um só? | 2 |
-| 09 | Grid, block e thread: escrevendo um kernel | 2 |
-| 10 | Equação do calor na GPU, passo a passo | 2 |
-| 11 | Como fazer o relatório | Exercícios |
-| 12–14 | Exemplos resolvidos (energia de deformação com Numba, probabilidade de falha com CuPy, busca de nós com joblib) | Exercícios |
+| 09 | CuPy em 3 passos | 2 |
+| 10 | Laje em incêndio: CPU × GPU | 2 |
+| 11 | Como fazer o relatório (escalabilidade forte) | Exercícios |
+| 12 | Exemplo da lista: Numba variando as threads | Exercícios |
+| 13 | O mesmo exemplo na GPU: a escada de speedup | Exercícios |
+| 14 | Usando IA sem se perder | Exercícios |
 
 ---
 
 ## 📝 Exercícios
 
-[`exercicios/lista.md`](exercicios/lista.md) ([.docx](exercicios/lista.docx)): escolha **um** de 8 exercícios (ou proponha o seu) e **uma** tecnologia, e entregue um relatório com speedup, eficiência e escalabilidade. O [modelo de relatório](exercicios/modelo_relatorio.ipynb) já mede e desenha os gráficos.
+[`exercicios/lista.md`](exercicios/lista.md) ([.docx](exercicios/lista.docx)): escolha **um** de 8 exercícios (ou proponha o seu) e **um** caminho: **CPU com Numba** (recomendado) ou **GPU com CuPy**. Só **escalabilidade forte**. A lista traz a função serial pronta de cada exercício e um **exemplo resolvido**. O [modelo de relatório](exercicios/modelo_relatorio.ipynb) mede, confere e desenha os gráficos; o [guia de instalação](exercicios/INSTALACAO.md) explica Colab e computador próprio.
+
+O `lista.docx` é a lista oficial da disciplina, no formato da UFAL (`exercicios/assets/lista_base.docx`), com um anexo (`exercicios/lista_anexo.md`: passo a passo e exemplo resolvido). Para gerar: `python tools/build_lista_docx.py`. O `lista.md` é a versão online, com a função serial pronta de cada exercício.
 
 ---
 
@@ -95,7 +102,7 @@ Ou com conda: `conda env create -f environment.yml`.
 ```
 notebooks/            Aula1_CPU.ipynb, Aula2_GPU.ipynb (publicados já executados)
   results/            números medidos ao rodar as aulas (usados nos slides e vídeos)
-exercicios/           lista.md, lista.docx, modelo_relatorio.ipynb
+exercicios/           lista.md, lista.docx, INSTALACAO.md, modelo_relatorio.ipynb
 presentations/        slides das 2 aulas (Marp) e o script que gera as figuras
 videos/               roteiros, cenas (Manim) e o script que gera os vídeos
 docs/                 página dos vídeos (GitHub Pages)
@@ -111,4 +118,4 @@ Os notebooks são gerados por `tools/build_aula1.py` e `tools/build_aula2.py` �
 
 **Instrutor:** Lucas Gouveia Omena Lopes · dúvidas e sugestões: [issues](https://github.com/LucaswasTaken/Openhardware-hpc/issues).
 
-**Última atualização:** outubro de 2026 — versão 2 (2 aulas de 3h30).
+**Última atualização:** novembro de 2026 — versão 2.1 (Aula 2 com CuPy, lista só com escalabilidade forte).
