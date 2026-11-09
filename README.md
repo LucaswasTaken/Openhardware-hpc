@@ -69,7 +69,7 @@ Vídeos de ~1 minuto, com animações e narração, para rever os conceitos — 
 
 [`exercicios/lista.md`](exercicios/lista.md) ([.docx](exercicios/lista.docx)): escolha **um** de 8 exercícios (ou proponha o seu) e **um** caminho: **CPU com Numba** (recomendado) ou **GPU com CuPy**. Só **escalabilidade forte**. A lista traz a função serial pronta de cada exercício e um **exemplo resolvido**. O [modelo de relatório](exercicios/modelo_relatorio.ipynb) mede, confere e desenha os gráficos; o [guia de instalação](exercicios/INSTALACAO.md) explica Colab e computador próprio.
 
-O `lista.docx` (com o cabeçalho da UFAL) é gerado a partir do `lista.md`: `python tools/build_lista_docx.py --numero 5 --entrega 24/11/2026`.
+O `lista.docx` é a lista oficial da disciplina, no formato da UFAL (`exercicios/assets/lista_base.docx`), com um anexo (`exercicios/lista_anexo.md`: passo a passo e exemplo resolvido). Para gerar: `python tools/build_lista_docx.py`. O `lista.md` é a versão online, com a função serial pronta de cada exercício.
 
 ---
 

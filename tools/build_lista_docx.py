@@ -1,93 +1,179 @@
-"""Gera exercicios/lista.docx a partir de exercicios/lista.md, com o cabeçalho da UFAL/PPGEC.
+"""Gera exercicios/lista.docx: a lista do professor (exercicios/assets/lista_base.docx), no formato original,
+com correções pontuais, e um Anexo (exercicios/lista_anexo.md) com o passo a passo e o exemplo resolvido.
 
-    python tools/build_lista_docx.py                       (usa NUMERO e ENTREGA abaixo)
-    python tools/build_lista_docx.py --numero 5 --entrega 24/11/2026
+    python tools/build_lista_docx.py
 
-Converte o subconjunto de Markdown usado na lista: títulos, parágrafos, listas, citações,
-tabelas, blocos de código, **negrito**, *itálico*, `código`, links e fórmulas $...$ simples."""
+Para mudar data, número da lista ou perguntas, edite o lista_base.docx no Word (ou as CORRECOES abaixo)."""
 
-import argparse
+import copy
 import re
 from pathlib import Path
 
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_BREAK
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import Cm, Pt, RGBColor
+from docx.shared import Pt, RGBColor
 
 RAIZ = Path(__file__).resolve().parents[1]
-MD = RAIZ / "exercicios" / "lista.md"
+BASE = RAIZ / "exercicios" / "assets" / "lista_base.docx"
+ANEXO = RAIZ / "exercicios" / "lista_anexo.md"
 SAIDA = RAIZ / "exercicios" / "lista.docx"
-LOGO = RAIZ / "exercicios" / "assets" / "logo_ufal.png"
 SITE_REPO = "https://github.com/LucaswasTaken/Openhardware-hpc/blob/master/exercicios/"
+FONTE_COD = "Consolas"
 
-NUMERO, ENTREGA, ANO = 5, "24/11/2026", 2026
-INSTITUICAO = ["Universidade Federal de Alagoas – UFAL", "Centro de Tecnologia – CTEC",
-               "Programa de Pós-Graduação em Engenharia Civil – PPGEC"]
-DISCIPLINA = "Técnicas Computacionais Avançadas"
-PROFESSORES = "Profs. Lucas Gouveia Omena Lopes e William Wagner Matos Lira"
+# ---------------------------------------------------------------- correções na lista do professor
+# (início do parágrafo, novos textos dos runs) — os runs mantêm a formatação original (rótulo em negrito etc.)
+CORRECOES = [
+    ("Joblib", ["Numba", ": paralelização na CPU com @njit(parallel=True) e prange (recomendado)"]),
+    ("Numba", ["CuPy", ": computação em GPU (troque np por cp)"]),
+    ("CuPy", ["Joblib / Multiprocessing", ": paralelização na CPU com processos"]),
+    ("Escalabilidade = ", ["Escalabilidade forte", ": mesmo tamanho de problema, variando o número de threads/processos "
+                           "(na GPU: comparar com as versões de CPU)"]),
+    ("Weak scaling", ["Strong scaling: número de pontos fixo, variar processos"]),
+]
+APAGAR = ["Multiprocessing: Paralelização tradicional", "Dask"]
+TROCAS = [("dos 5 Exercícios", "dos 8 Exercícios"), ("Produto Vetorial", "Produto Escalar"), ("momente", "momento"),
+          ("ponto dentor de", "ponto dentro de"), ("� Exercício 3", "🎲 Exercício 3")]
+# exercícios 6–8: o texto de especificação/requisitos/análise estava copiado do 5
+SECOES = {
+    "Exercício 6": ["Tamanhos: 1M, 10M e 20M elementos; comparar com np.sort",
+                    "Versão serial: np.sort ou um algoritmo próprio (ex.: merge sort)",
+                    "Paralelizar ordenando blocos (chunks) do array ao mesmo tempo",
+                    "Combinar os blocos ordenados (intercalação final)",
+                    "Medir throughput (elementos ordenados por segundo)",
+                    "Strong scaling: tamanho fixo, variar processos",
+                    "Custo da intercalação final (parte que não paraleliza)",
+                    "Comparar com np.sort"],
+    "Exercício 7": ["Pontos: 1M; polígono com 20, 200 e 2000 vértices",
+                    "Versão serial: algoritmo do raio (tiro), ponto a ponto",
+                    "Paralelizar dividindo os pontos em chunks",
+                    "Combinar os resultados (dentro/fora de cada ponto)",
+                    "Medir throughput (pontos por segundo)",
+                    "Strong scaling: número de pontos fixo, variar processos",
+                    "Efeito do número de vértices no speedup",
+                    "Validar com matplotlib.path.Path.contains_points"],
+    "Exercício 8": ["Pontos: 1M e 10M, aleatórios no plano",
+                    "Versão serial: Monotone Chain ou Quickhull",
+                    "Paralelizar calculando o fecho de cada chunk",
+                    "Combinar: calcular o fecho dos fechos",
+                    "Validar com scipy.spatial.ConvexHull",
+                    "Strong scaling: número de pontos fixo, variar processos",
+                    "Quantos pontos sobram após a 1ª etapa",
+                    "Custo da etapa final (serial)"],
+}
+AVISO_ANEXO = " Veja o Anexo, ao final: passo a passo, escalabilidade forte e um exemplo resolvido."
 
-FONTE, FONTE_COD = "Calibri", "Consolas"
-AZUL = RGBColor(0x1F, 0x4E, 0x79)
 
-# ---------------------------------------------------------------- fórmulas $...$ → texto
-SUP = str.maketrans("0123456789n+-", "⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ⁺⁻")
+def textos(p, novos):
+    """Põe `novos` nos primeiros runs do parágrafo e esvazia os demais (mantém a formatação de cada run)."""
+    for r, t in zip(p.runs, novos + [""] * len(p.runs)):
+        r.text = t
+
+
+def tem_lista(p):
+    pr = p._p.pPr
+    return pr is not None and pr.numPr is not None
+
+
+def corrige(doc):
+    ps = doc.paragraphs
+    feitos = set()
+    for inicio, novos in CORRECOES:
+        p = next(p for i, p in enumerate(ps) if i not in feitos and p.text.startswith(inicio))
+        feitos.add(ps.index(p))
+        textos(p, novos)
+    for inicio in APAGAR:
+        p = next(p for p in doc.paragraphs if p.text.startswith(inicio))
+        p._p.getparent().remove(p._p)
+    for p in doc.paragraphs:
+        for a, b in TROCAS:
+            if a in p.text:
+                for r in p.runs:
+                    r.text = r.text.replace(a, b).replace("�", "🎲") if ("�" in a) else r.text.replace(a, b)
+        if p.text.startswith("Você deve escolher apenas UM"):
+            p.runs[-1].text += AVISO_ANEXO
+    ps = doc.paragraphs
+    for chave, novos in SECOES.items():
+        i = next(i for i, p in enumerate(ps) if chave in p.text and p.style.name.startswith("Heading 1"))
+        itens = []
+        for p in ps[i + 1:]:
+            if p.style.name.startswith("Heading 1"):
+                break
+            if tem_lista(p):
+                itens.append(p)
+        assert len(itens) == len(novos), (chave, len(itens))
+        for p, t in zip(itens, novos):
+            textos(p, [t])
+
+
+# ---------------------------------------------------------------- anexo (markdown simples → estilos do documento)
+SUP = str.maketrans("0123456789n", "⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ")
 SUB = str.maketrans("0123456789ijkn", "₀₁₂₃₄₅₆₇₈₉ᵢⱼₖₙ")
-
-
-def latex(s: str) -> str:
-    s = s.replace(r"\tfrac12", "½").replace(r"\frac12", "½").replace(r"\,", " ")
-    for a, b in ((r"\sum", "Σ"), (r"\times", "×"), (r"\delta", "δ"), (r"\cdot", "·"), (r"\pi", "π")):
-        s = s.replace(a, b)
-    s = re.sub(r"\\sqrt\{([^}]*)\}", r"√\1", s)
-    s = re.sub(r"\^\{([^}]*)\}", lambda m: m.group(1).translate(SUP), s)
-    s = re.sub(r"\^(\w)", lambda m: m.group(1).translate(SUP), s)
-    s = re.sub(r"_\{([^}]*)\}", lambda m: m.group(1).translate(SUB), s)
-    s = re.sub(r"_(\w)", lambda m: m.group(1).translate(SUB), s)
-    return s.replace(" ", " ").replace("  ", " ")
-
-
-# ---------------------------------------------------------------- texto com formatação
 TOKEN = re.compile(r"(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\)|\$[^$]+\$)")
 
 
-def link(par, texto, url, negrito=False):
-    if not url.startswith("http"):
-        url = SITE_REPO + url
+def latex(s):
+    s = s.replace(r"\tfrac12", "½").replace(r"\,", " ").replace(r"\sum", "Σ").replace(r"\delta", "δ")
+    s = re.sub(r"\^(\w)", lambda m: m.group(1).translate(SUP), s)
+    return re.sub(r"_(\w)", lambda m: m.group(1).translate(SUB), s)
+
+
+def link(par, texto, url, tamanho=None):
+    url = url if url.startswith("http") else SITE_REPO + url
     r_id = par.part.relate_to(url, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
                               is_external=True)
     h = OxmlElement("w:hyperlink"); h.set(qn("r:id"), r_id)
-    r = OxmlElement("w:r"); rpr = OxmlElement("w:rPr")
-    cor = OxmlElement("w:color"); cor.set(qn("w:val"), "1F4E79"); rpr.append(cor)
+    r = OxmlElement("w:r")
+    rpr = copy.deepcopy(MODELO["corpo"]) if MODELO.get("corpo") is not None else OxmlElement("w:rPr")
+    for velho in rpr.findall(qn("w:color")) + rpr.findall(qn("w:u")):
+        rpr.remove(velho)
+    cor = OxmlElement("w:color"); cor.set(qn("w:val"), "0563C1"); rpr.append(cor)
     u = OxmlElement("w:u"); u.set(qn("w:val"), "single"); rpr.append(u)
-    if negrito:
-        rpr.append(OxmlElement("w:b"))
+    if tamanho:
+        for velho in rpr.findall(qn("w:sz")) + rpr.findall(qn("w:szCs")):
+            rpr.remove(velho)
+        for tag in ("w:sz", "w:szCs"):
+            e = OxmlElement(tag); e.set(qn("w:val"), str(int(tamanho.pt * 2))); rpr.append(e)
     r.append(rpr); t = OxmlElement("w:t"); t.text = texto; t.set(qn("xml:space"), "preserve"); r.append(t)
     h.append(r); par._p.append(h)
 
 
-def inline(par, texto, negrito=False, italico=False, tamanho=None):
+MODELO = {}   # rPr de runs de referência da lista do professor (fonte, tamanho, cor) — preenchido em main()
+
+
+def run_com(par, texto, papel):
+    run = par.add_run(texto)
+    base = MODELO.get(papel)
+    if base is not None:
+        if run._r.rPr is not None:
+            run._r.remove(run._r.rPr)
+        run._r.insert(0, copy.deepcopy(base))
+    return run
+
+
+def inline(par, texto, negrito=False, italico=False, tamanho=None, papel="corpo"):
     for parte in TOKEN.split(texto):
         if not parte:
             continue
-        b, i, cod = negrito, italico, False
         if parte.startswith("**"):
-            inline(par, parte[2:-2], True, italico, tamanho); continue
+            inline(par, parte[2:-2], True, italico, tamanho, papel); continue
         if parte.startswith("*") and len(parte) > 2:
-            inline(par, parte[1:-1], negrito, True, tamanho); continue
-        if parte.startswith("`"):
-            parte, cod = parte[1:-1], True
-        elif parte.startswith("["):
+            inline(par, parte[1:-1], negrito, True, tamanho, papel); continue
+        if parte.startswith("["):
             m = re.match(r"\[([^\]]+)\]\(([^)]+)\)", parte)
-            link(par, re.sub(r"[*`]", "", m.group(1)), m.group(2), negrito); continue
-        elif parte.startswith("$"):
-            parte, i = latex(parte[1:-1]), True
-        run = par.add_run(parte)
-        run.bold, run.italic = b or None, i or None
+            link(par, m.group(1), m.group(2), tamanho); continue
+        cod = parte.startswith("`")
+        it = italico or parte.startswith("$")
+        parte = parte[1:-1] if cod else (latex(parte[1:-1]) if parte.startswith("$") else parte)
+        run = run_com(par, parte, papel)
+        if negrito:
+            run.bold = True
+        if it:
+            run.italic = True
         if cod:
-            run.font.name = FONTE_COD; run.font.size = Pt(9.5)
+            run.font.name = FONTE_COD; run.font.size = Pt(9)
         elif tamanho:
             run.font.size = tamanho
 
@@ -97,62 +183,43 @@ def sombreia(celula, cor):
     sh.set(qn("w:val"), "clear"); sh.set(qn("w:color"), "auto"); sh.set(qn("w:fill"), cor); tc.append(sh)
 
 
-def borda_inferior(par, cor="1F4E79"):
-    ppr = par._p.get_or_add_pPr(); bd = OxmlElement("w:pBdr"); b = OxmlElement("w:bottom")
-    for k, v in (("val", "single"), ("sz", "6"), ("space", "1"), ("color", cor)):
-        b.set(qn(f"w:{k}"), v)
-    bd.append(b); ppr.append(bd)
-
-
-# ---------------------------------------------------------------- blocos
-def cabecalho(doc, numero, entrega):
-    t = doc.add_table(rows=1, cols=2); t.alignment = WD_TABLE_ALIGNMENT.CENTER
-    t.columns[0].width = Cm(2.2); t.columns[1].width = Cm(14.8)
-    c0, c1 = t.rows[0].cells
-    c0.width, c1.width = Cm(2.2), Cm(14.8)
-    c0.paragraphs[0].add_run().add_picture(str(LOGO), width=Cm(1.8))
-    for j, linha in enumerate(INSTITUICAO):
-        p = c1.paragraphs[0] if j == 0 else c1.add_paragraph()
-        r = p.add_run(linha); r.bold = True; r.font.size = Pt(11)
-        p.paragraph_format.space_after = Pt(0)
-    p = doc.add_paragraph(); borda_inferior(p)
-    for texto, tam, neg in ((f"{DISCIPLINA} – {ANO}", 12, True), (PROFESSORES, 10.5, False),
-                            (f"{numero}ª Lista de Exercícios (entrega: {entrega})", 12, True)):
-        p = doc.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.paragraph_format.space_after = Pt(2)
-        r = p.add_run(texto); r.bold = neg; r.font.size = Pt(tam)
+def bordas(tabela):
+    tblPr = tabela._tbl.tblPr; b = OxmlElement("w:tblBorders")
+    for lado in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        e = OxmlElement(f"w:{lado}")
+        for k, v in (("val", "single"), ("sz", "4"), ("space", "0"), ("color", "A6A6A6")):
+            e.set(qn(f"w:{k}"), v)
+        b.append(e)
+    tblPr.append(b)
 
 
 def tabela(doc, linhas):
     cel = [[c.strip() for c in l.strip().strip("|").split("|")] for l in linhas if not re.match(r"^\|[\s:|-]+\|$", l.strip())]
-    t = doc.add_table(rows=len(cel), cols=len(cel[0])); t.style = "Table Grid"; t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    t = doc.add_table(rows=len(cel), cols=len(cel[0])); bordas(t); t.alignment = WD_TABLE_ALIGNMENT.CENTER
     for i, linha in enumerate(cel):
         for j, txt in enumerate(linha):
             c = t.cell(i, j); p = c.paragraphs[0]; p.paragraph_format.space_after = Pt(0)
             inline(p, txt, negrito=(i == 0), tamanho=Pt(9.5))
             if i == 0:
-                sombreia(c, "DCE6F0")
-    doc.add_paragraph().paragraph_format.space_after = Pt(0)
+                sombreia(c, "D9E2F3")
+    doc.add_paragraph()
 
 
 def codigo(doc, linhas):
     t = doc.add_table(rows=1, cols=1); t.alignment = WD_TABLE_ALIGNMENT.CENTER
-    c = t.cell(0, 0); sombreia(c, "F3F3F3"); p = c.paragraphs[0]
+    c = t.cell(0, 0); sombreia(c, "F2F2F2"); p = c.paragraphs[0]
     p.paragraph_format.space_after = Pt(0); p.paragraph_format.line_spacing = 1.0
     for k, l in enumerate(linhas):
         r = p.add_run(l); r.font.name = FONTE_COD; r.font.size = Pt(8.5)
         if k < len(linhas) - 1:
             r.add_break()
-    doc.add_paragraph().paragraph_format.space_after = Pt(0)
+    doc.add_paragraph()
 
 
-def converte(doc, md: str):
+def anexo(doc, md, numpr_marcador):
+    quebra = doc.add_paragraph(); quebra.add_run().add_break(WD_BREAK.PAGE)
     linhas = md.splitlines()
     i = 0
-    if linhas and linhas[0].startswith("# "):           # o título vira parte do cabeçalho
-        p = doc.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r = p.add_run(linhas[0][2:].replace("—", "–")); r.bold = True; r.font.size = Pt(14); r.font.color.rgb = AZUL
-        i = 1
     while i < len(linhas):
         l = linhas[i]
         if l.startswith("```"):
@@ -165,45 +232,34 @@ def converte(doc, md: str):
             while j < len(linhas) and linhas[j].startswith("|"):
                 j += 1
             tabela(doc, linhas[i:j]); i = j; continue
-        if l.strip() == "---":
-            borda_inferior(doc.add_paragraph(), "BFBFBF"); i += 1; continue
-        m = re.match(r"^(#{2,3}) (.*)", l)
+        m = re.match(r"^(#{1,3}) (.*)", l)
         if m:
-            h = doc.add_heading(level=len(m.group(1)) - 1); inline(h, m.group(2)); i += 1; continue
-        m = re.match(r"^(\s*)([-*]|\d+\.) (.*)", l)
-        if m:
-            estilo = "List Number" if m.group(2)[0].isdigit() else ("List Bullet 2" if m.group(1) else "List Bullet")
-            p = doc.add_paragraph(style=estilo); inline(p, m.group(3)); p.paragraph_format.space_after = Pt(2)
+            nivel = 1 if len(m.group(1)) == 1 else 3          # como na lista: Heading 1 (exercício) e 3 (subtítulo)
+            h = doc.add_paragraph(style=f"Heading {nivel}")
+            inline(h, m.group(2), papel=f"h{nivel}"); i += 1; continue
+        if l.startswith("- "):
+            p = doc.add_paragraph(style="Normal"); inline(p, l[2:], papel="item")
+            p._p.get_or_add_pPr().append(copy.deepcopy(numpr_marcador))
             i += 1; continue
         if l.startswith(">"):
-            p = doc.add_paragraph(); p.paragraph_format.left_indent = Cm(0.8)
-            inline(p, l.lstrip("> "), italico=True); i += 1; continue
+            p = doc.add_paragraph(style="Normal (Web)"); inline(p, l.lstrip("> "), italico=True); i += 1; continue
         if l.strip():
-            p = doc.add_paragraph(); inline(p, l)
+            p = doc.add_paragraph(style="Normal (Web)"); inline(p, l)
         i += 1
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--numero", type=int, default=NUMERO)
-    ap.add_argument("--entrega", default=ENTREGA)
-    ap.add_argument("--saida", type=Path, default=SAIDA)
-    a = ap.parse_args()
-
-    doc = Document()
-    sec = doc.sections[0]
-    sec.page_width, sec.page_height = Cm(21), Cm(29.7)
-    sec.left_margin = sec.right_margin = Cm(2); sec.top_margin = sec.bottom_margin = Cm(1.8)
-    st = doc.styles["Normal"]; st.font.name = FONTE; st.font.size = Pt(10.5)
-    st.paragraph_format.space_after = Pt(4)
-    for nome, tam in (("Heading 1", 13), ("Heading 2", 11.5)):
-        h = doc.styles[nome]; h.font.name = FONTE; h.font.size = Pt(tam); h.font.color.rgb = AZUL; h.font.bold = True
-        h.paragraph_format.space_before = Pt(10); h.paragraph_format.space_after = Pt(4); h.paragraph_format.keep_with_next = True
-
-    cabecalho(doc, a.numero, a.entrega)
-    converte(doc, MD.read_text(encoding="utf-8"))
-    doc.save(a.saida)
-    print(f"{a.saida} gerado")
+    doc = Document(BASE)
+    ps = doc.paragraphs
+    acha = lambda inicio: next(p for p in ps if p.text.startswith(inicio))  # noqa: E731
+    numpr = copy.deepcopy(acha("Joblib")._p.pPr.numPr)
+    for papel, run in (("corpo", acha("Você deve escolher").runs[0]), ("h1", acha("🔢").runs[1]),
+                       ("h3", acha("Especificações").runs[0]), ("item", acha("Implementar produto escalar").runs[0])):
+        MODELO[papel] = copy.deepcopy(run._r.rPr)
+    corrige(doc)
+    anexo(doc, ANEXO.read_text(encoding="utf-8"), numpr)
+    doc.save(SAIDA)
+    print(f"{SAIDA} gerado")
 
 
 if __name__ == "__main__":
